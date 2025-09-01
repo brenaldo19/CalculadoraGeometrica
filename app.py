@@ -1,39 +1,22 @@
-from flask import Flask, request, jsonify
+import streamlit as st
 import math
 
-app = Flask(__name__)
+st.set_page_config(page_title="Calculadora Geométrica", layout="wide")
 
-@app.route("/")
-def home():
-    return {"msg": "Calculadora Geométrica no ar!"}
+st.title("📐 Calculadora Geométrica")
+st.write("Escolha a figura geométrica e insira os parâmetros para calcular.")
+
+# =========================================================
+# Funções de cálculo
+# =========================================================
 
 # -----------------------------
 # Triângulo
 # -----------------------------
-def validar_triangulo(a, b, c):
-    return a + b > c and a + c > b and b + c > a
-
-@app.route("/triangulo_master")
-def triangulo_master():
-    # -----------------------
-    # Entrada de dados
-    # -----------------------
-    a = request.args.get("a", type=float)
-    b = request.args.get("b", type=float)
-    c = request.args.get("c", type=float)
-    A = request.args.get("A", type=float)  # ângulo em graus
-    B = request.args.get("B", type=float)
-    C = request.args.get("C", type=float)
-    h = request.args.get("h", type=float)  # altura opcional
-
-    # -----------------------
+def triangulo_master(a=None, b=None, c=None, A=None, B=None, C=None, h=None):
     # Reconstrução de lados
-    # -----------------------
-    # Caso 1: Dois catetos → calcula hipotenusa
     if a and b and not c and not (A or B or C):
         c = math.sqrt(a**2 + b**2)
-
-    # Caso 2: Cateto + hipotenusa → calcula outro cateto
     if a and c and not b:
         if c > a:
             b = math.sqrt(c**2 - a**2)
@@ -41,7 +24,6 @@ def triangulo_master():
         if c > b:
             a = math.sqrt(c**2 - b**2)
 
-    # Caso 3: Dois lados + ângulo entre eles → Lei dos Cossenos
     if a and b and C and not c:
         C_rad = math.radians(C)
         c = math.sqrt(a**2 + b**2 - 2*a*b*math.cos(C_rad))
@@ -52,7 +34,6 @@ def triangulo_master():
         A_rad = math.radians(A)
         a = math.sqrt(b**2 + c**2 - 2*b*c*math.cos(A_rad))
 
-    # Caso 4: Um lado + ângulos → Lei dos Senos
     if a and A and B and not b:
         A_rad = math.radians(A)
         B_rad = math.radians(B)
@@ -62,610 +43,432 @@ def triangulo_master():
         C_rad = math.radians(C)
         c = a * math.sin(C_rad)/math.sin(A_rad)
 
-    # -----------------------
-    # Checagem se temos 3 lados
-    # -----------------------
     if not (a and b and c):
-        return jsonify({"erro": "Não foi possível determinar os 3 lados com as informações fornecidas."}), 400
-
-    # -----------------------
-    # Validação existência
-    # -----------------------
+        return {"erro": "Não foi possível determinar os 3 lados."}
     if not (a+b>c and a+c>b and b+c>a):
-        return jsonify({"erro": "Triângulo inválido (desigualdade triangular não satisfeita)."}), 400
+        return {"erro": "Triângulo inválido."}
 
     resultado = {}
-
-    # -----------------------
-    # Perímetro e área (Heron)
-    # -----------------------
     perimetro = a+b+c
     s = perimetro/2
     area = math.sqrt(s*(s-a)*(s-b)*(s-c))
-    resultado["perimetro"] = round(perimetro,4)
-    resultado["area"] = round(area,4)
+    resultado["perímetro"] = round(perimetro,4)
+    resultado["área"] = round(area,4)
 
-    # -----------------------
-    # Alturas
-    # -----------------------
     h_a = (2*area)/a
     h_b = (2*area)/b
     h_c = (2*area)/c
     resultado["alturas"] = {"h_a": round(h_a,4), "h_b": round(h_b,4), "h_c": round(h_c,4)}
 
-    # -----------------------
-    # Ângulos (Lei dos Cossenos)
-    # -----------------------
     A = math.degrees(math.acos((b**2 + c**2 - a**2)/(2*b*c)))
     B = math.degrees(math.acos((a**2 + c**2 - b**2)/(2*a*c)))
     C = 180 - (A+B)
-    resultado["angulos"] = {"A": round(A,2), "B": round(B,2), "C": round(C,2)}
+    resultado["ângulos"] = {"A": round(A,2), "B": round(B,2), "C": round(C,2)}
 
-    # -----------------------
-    # Classificação por lados
-    # -----------------------
     if abs(a-b)<1e-6 and abs(b-c)<1e-6:
-        tipo_lado = "equilátero"
+        resultado["classificação_lados"] = "equilátero"
     elif abs(a-b)<1e-6 or abs(b-c)<1e-6 or abs(a-c)<1e-6:
-        tipo_lado = "isósceles"
+        resultado["classificação_lados"] = "isósceles"
     else:
-        tipo_lado = "escaleno"
-    resultado["classificacao_lados"] = tipo_lado
+        resultado["classificação_lados"] = "escaleno"
 
-    # -----------------------
-    # Classificação por ângulos
-    # -----------------------
     if any(abs(x-90) < 1e-3 for x in [A,B,C]):
-        tipo_angulo = "retângulo"
+        resultado["classificação_ângulos"] = "retângulo"
     elif all(x < 90 for x in [A,B,C]):
-        tipo_angulo = "acutângulo"
+        resultado["classificação_ângulos"] = "acutângulo"
     else:
-        tipo_angulo = "obtusângulo"
-    resultado["classificacao_angulos"] = tipo_angulo
+        resultado["classificação_ângulos"] = "obtusângulo"
 
-    # -----------------------
-    # Ângulos formados pelas alturas
-    # -----------------------
-    # Exemplo: altura relativa ao lado a divide o ângulo A em dois.
-    # Podemos calcular ângulo entre altura h_a e lado b usando trigonometria.
-    # tg(theta) = cateto_oposto / cateto_adjacente
-    try:
-        theta_A = math.degrees(math.atan(h_a / (b - (h_a/math.tan(math.radians(B))))))
-    except:
-        theta_A = None
-
-    resultado["angulo_altura"] = {
-        "altura_relativa_a": round(theta_A,2) if theta_A else "indeterminado"
-    }
-
-    return jsonify(resultado)
+    return resultado
 
 
-@app.route("/circulo")
-def circulo():
-    try:
-        r = float(request.args.get("r"))
-    except:
-        return jsonify({"erro": "Forneça o raio r!"}), 400
+# -----------------------------
+# Círculo
+# -----------------------------
+def circulo(r, theta=None, corda=None):
     if r <= 0:
-        return jsonify({"erro": "Raio deve ser positivo!"}), 400
+        return {"erro": "Raio deve ser positivo!"}
 
     resultado = {}
-    resultado["area"] = round(math.pi * r**2, 4)
-    resultado["circunferencia"] = round(2*math.pi*r, 4)
+    resultado["área"] = round(math.pi * r**2, 4)
+    resultado["circunferência"] = round(2*math.pi*r, 4)
 
-    # arco e setor (se informado ângulo θ em graus)
-    theta = request.args.get("theta", type=float)
     if theta:
         arco = 2*math.pi*r*(theta/360)
         setor = math.pi*r**2*(theta/360)
         resultado["arco"] = round(arco, 4)
         resultado["setor"] = round(setor, 4)
+        if corda:
+            h = r - math.sqrt(r**2 - (corda/2)**2)
+            segmento = (math.pi*r**2*(theta/360)) - (corda*(r-h)/2)
+            resultado["segmento"] = round(segmento, 4)
 
-    # segmento (se informado corda + ângulo central)
-    corda = request.args.get("corda", type=float)
-    if corda and theta:
-        h = r - math.sqrt(r**2 - (corda/2)**2)  # altura do segmento
-        segmento = (math.pi*r**2*(theta/360)) - (corda*(r-h)/2)
-        resultado["segmento"] = round(segmento, 4)
+    return resultado
 
-    resultado["equacao_cartesiana"] = f"(x - 0)² + (y - 0)² = {r}²"
-    return jsonify(resultado)
 
 # -----------------------------
 # Quadrado
 # -----------------------------
-@app.route("/quadrado")
-def quadrado():
-    try:
-        lado = float(request.args.get("lado"))
-    except:
-        return jsonify({"erro": "Forneça o parâmetro lado!"}), 400
+def quadrado(lado):
+    return {"perímetro": 4*lado, "área": lado**2}
 
-    return jsonify({"perimetro": 4*lado, "area": lado**2})
 
 # -----------------------------
 # Retângulo
 # -----------------------------
-@app.route("/retangulo")
-def retangulo():
-    try:
-        base = float(request.args.get("base"))
-        altura = float(request.args.get("altura"))
-    except:
-        return jsonify({"erro": "Forneça base e altura!"}), 400
+def retangulo(base, altura):
+    return {"perímetro": 2*(base+altura), "área": base*altura}
 
-    return jsonify({"perimetro": 2*(base+altura), "area": base*altura})
 
 # -----------------------------
 # Losango
 # -----------------------------
-@app.route("/losango_avancado")
-def losango_avancado():
-    try:
-        lado = float(request.args.get("lado"))
-        D = float(request.args.get("D"))  # diagonal maior
-        d = float(request.args.get("d"))  # diagonal menor
-    except:
-        return jsonify({"erro": "Forneça lado, D e d!"}), 400
-
+def losango(lado, D, d):
     if lado <= 0 or D <= 0 or d <= 0:
-        return jsonify({"erro": "Valores devem ser positivos!"}), 400
-
-    resultado = {}
-
-    # Área e perímetro
+        return {"erro": "Valores devem ser positivos!"}
     area = (D*d)/2
     perimetro = 4*lado
-    resultado["area"] = round(area,4)
-    resultado["perimetro"] = round(perimetro,4)
-
-    # Consistência dos lados
-    if abs(lado**2 - ((D/2)**2 + (d/2)**2)) > 1e-3:
-        resultado["aviso"] = "Lado não é compatível com diagonais!"
-
-    # Altura relativa
-    h = area / D
-    resultado["altura"] = round(h,4)
-
-    # Ângulos internos
+    h = area/D
     ang_agudo = math.degrees(2*math.atan(d/D))
-    resultado["angulos"] = {
-        "agudo": round(ang_agudo,2),
-        "obtuso": round(180-ang_agudo,2)
+    return {
+        "área": round(area,4),
+        "perímetro": round(perimetro,4),
+        "altura": round(h,4),
+        "ângulos": {"agudo": round(ang_agudo,2), "obtuso": round(180-ang_agudo,2)}
     }
 
-    return jsonify(resultado)
 
 # -----------------------------
 # Paralelogramo
 # -----------------------------
-@app.route("/paralelogramo_avancado")
-def paralelogramo_avancado():
-    try:
-        base = float(request.args.get("base"))
-        lado = float(request.args.get("lado"))
-        altura = request.args.get("altura", type=float)  # opcional
-        angulo = request.args.get("angulo", type=float)  # em graus, opcional
-    except:
-        return jsonify({"erro": "Forneça base, lado e opcionalmente altura ou ângulo!"}), 400
-
+def paralelogramo(base, lado, altura=None, angulo=None):
     if base <= 0 or lado <= 0:
-        return jsonify({"erro": "Base e lado devem ser positivos!"}), 400
-
-    resultado = {}
-    perimetro = 2*(base+lado)
-    resultado["perimetro"] = round(perimetro,4)
-
-    # Área pelo que tiver disponível
+        return {"erro": "Base e lado devem ser positivos!"}
+    resultado = {"perímetro": round(2*(base+lado),4)}
     if altura:
-        area = base*altura
-        resultado["area"] = round(area,4)
+        resultado["área"] = round(base*altura,4)
     elif angulo:
         ang_rad = math.radians(angulo)
         area = base*lado*math.sin(ang_rad)
-        resultado["area"] = round(area,4)
+        resultado["área"] = round(area,4)
+    return resultado
 
-        # diagonais
-        d1 = math.sqrt(base**2 + lado**2 + 2*base*lado*math.cos(ang_rad))
-        d2 = math.sqrt(base**2 + lado**2 - 2*base*lado*math.cos(ang_rad))
-        resultado["diagonais"] = {"maior": round(d1,4), "menor": round(d2,4)}
-
-    # classificação
-    if abs(base-lado)<1e-6 and angulo==90:
-        tipo = "quadrado"
-    elif angulo==90:
-        tipo = "retângulo"
-    elif abs(base-lado)<1e-6:
-        tipo = "losango"
-    else:
-        tipo = "paralelogramo"
-    resultado["classificacao"] = tipo
-
-    return jsonify(resultado)
 
 # -----------------------------
 # Trapézio
 # -----------------------------
-@app.route("/trapezio_avancado")
-def trapezio_avancado():
-    try:
-        B = float(request.args.get("B"))  # base maior
-        b = float(request.args.get("b"))  # base menor
-        l1 = float(request.args.get("l1"))
-        l2 = float(request.args.get("l2"))
-        h = request.args.get("h", type=float)  # altura opcional
-    except:
-        return jsonify({"erro": "Forneça B, b, l1, l2 e opcionalmente h!"}), 400
-
+def trapezio(B, b, l1, l2, h=None):
     if B <= 0 or b <= 0 or l1 <= 0 or l2 <= 0:
-        return jsonify({"erro": "Todos os lados devem ser positivos!"}), 400
-
-    resultado = {}
-
-    # altura (se não foi passada)
-    if not h:
-        # só funciona se trapézio isósceles (l1 = l2)
-        if abs(l1 - l2) < 1e-6:
-            h = math.sqrt(l1**2 - ((B - b)/2)**2)
-            resultado["altura_calc"] = round(h,4)
-
+        return {"erro": "Todos os lados devem ser positivos!"}
+    resultado = {"perímetro": round(B+b+l1+l2,4)}
     if h:
         area = ((B+b)*h)/2
-        resultado["area"] = round(area,4)
+        resultado["área"] = round(area,4)
+    return resultado
 
-    perimetro = B+b+l1+l2
-    resultado["perimetro"] = round(perimetro,4)
-
-    # classificação
-    if abs(l1-l2)<1e-6:
-        tipo = "isósceles"
-    elif l1 == h or l2 == h:
-        tipo = "retângulo"
-    else:
-        tipo = "escaleno"
-    resultado["classificacao"] = tipo
-
-    return jsonify(resultado)
 
 # -----------------------------
-# Polígonos Regulares
+# Polígono Regular
 # -----------------------------
-@app.route("/poligono_detalhado")
-def poligono_detalhado():
-    try:
-        n = int(request.args.get("n"))
-    except:
-        return jsonify({"erro": "Forneça n (5 a 10)!"}), 400
-
-    lado = request.args.get("lado", type=float)
-    R = request.args.get("R", type=float)   # raio circunscrito opcional
-
+def poligono(n, lado=None, R=None):
     if n < 5 or n > 10:
-        return jsonify({"erro": "Número de lados deve estar entre 5 e 10!"}), 400
-
-    resultado = {"n_lados": n}
-    perimetro = None
-    area = None
-    apotema = None
-
-    # -------------------
-    # Pentágono
-    # -------------------
-    if n == 5:
-        resultado["nome"] = "pentágono"
-        if lado:
-            perimetro = 5*lado
-            area = (5/4)*lado**2*(1/math.tan(math.pi/5))
-            apotema = lado/(2*math.tan(math.pi/5))
-        elif R:
-            perimetro = 10*R*math.sin(math.pi/5)
-            area = (5/2)*R**2*math.sin(math.radians(72))
-            apotema = R*math.cos(math.pi/5)
-        else:
-            return jsonify({"erro": "Pentágono precisa de lado ou raio circunscrito (R)."}), 400
-
-    # -------------------
-    # Hexágono
-    # -------------------
-    elif n == 6:
-        resultado["nome"] = "hexágono"
-        if lado:
-            perimetro = 6*lado
-            area = (3*math.sqrt(3)/2)*lado**2
-            apotema = (math.sqrt(3)/2)*lado
-        elif R:
-            perimetro = 6*R
-            area = (3*math.sqrt(3)/2)*R**2
-            apotema = (math.sqrt(3)/2)*R
-        else:
-            return jsonify({"erro": "Hexágono precisa de lado ou raio circunscrito (R)."}), 400
-
-    # -------------------
-    # Heptágono
-    # -------------------
-    elif n == 7:
-        resultado["nome"] = "heptágono"
-        if not lado:
-            return jsonify({"erro": "Heptágono precisa do lado."}), 400
-        perimetro = 7*lado
-        apotema = lado/(2*math.tan(math.pi/7))
+        return {"erro": "Número de lados deve estar entre 5 e 10!"}
+    perimetro, area, apotema = None, None, None
+    if lado:
+        perimetro = n*lado
+        apotema = lado/(2*math.tan(math.pi/n))
         area = (perimetro*apotema)/2
-
-    # -------------------
-    # Octógono
-    # -------------------
-    elif n == 8:
-        resultado["nome"] = "octógono"
-        if lado:
-            perimetro = 8*lado
-            area = 2*(1+math.sqrt(2))*lado**2
-            apotema = lado/(2*math.tan(math.pi/8))
-        elif R:
-            lado = R*math.sqrt(2-2*math.cos(2*math.pi/8)) # lado a partir de R
-            perimetro = 8*lado
-            apotema = R*math.cos(math.pi/8)
-            area = (perimetro*apotema)/2
-        else:
-            return jsonify({"erro": "Octógono precisa de lado ou raio circunscrito (R)."}), 400
-
-    # -------------------
-    # Eneágono
-    # -------------------
-    elif n == 9:
-        resultado["nome"] = "eneágono"
-        if not lado:
-            return jsonify({"erro": "Eneágono precisa do lado."}), 400
-        perimetro = 9*lado
-        apotema = lado/(2*math.tan(math.pi/9))
+    elif R:
+        perimetro = 2*n*R*math.sin(math.pi/n)
+        apotema = R*math.cos(math.pi/n)
         area = (perimetro*apotema)/2
+    else:
+        return {"erro": "Forneça lado ou raio circunscrito."}
+    return {"perímetro": round(perimetro,4), "área": round(area,4), "apotema": round(apotema,4)}
 
-    # -------------------
-    # Decágono
-    # -------------------
-    elif n == 10:
-        resultado["nome"] = "decágono"
-        if lado:
-            perimetro = 10*lado
-            apotema = lado/(2*math.tan(math.pi/10))
-            area = (perimetro*apotema)/2
-        elif R:
-            perimetro = 20*R*math.sin(math.pi/10)
-            area = (5/2)*R**2*math.sin(math.radians(72))
-            apotema = R*math.cos(math.pi/10)
-        else:
-            return jsonify({"erro": "Decágono precisa de lado ou raio circunscrito (R)."}), 400
 
-    resultado["perimetro"] = round(perimetro,4)
-    resultado["area"] = round(area,4)
-    if apotema:
-        resultado["apotema"] = round(apotema,4)
+# =========================================================
+# Interface Streamlit – Parte 1
+# =========================================================
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "Triângulo", "Círculo", "Quadrado", "Retângulo", "Losango", "Paralelogramo", "Trapézio/Polígono"
+])
 
-    return jsonify(resultado)
+with tab1:
+    st.header("🔺 Triângulo")
+    a = st.number_input("Lado a", min_value=0.0, step=0.1)
+    b = st.number_input("Lado b", min_value=0.0, step=0.1)
+    c = st.number_input("Lado c", min_value=0.0, step=0.1)
+    A = st.number_input("Ângulo A (graus)", min_value=0.0, step=0.1)
+    B = st.number_input("Ângulo B (graus)", min_value=0.0, step=0.1)
+    C = st.number_input("Ângulo C (graus)", min_value=0.0, step=0.1)
+    if st.button("Calcular Triângulo"):
+        st.write(triangulo_master(a or None, b or None, c or None, A or None, B or None, C or None))
+
+with tab2:
+    st.header("⚪ Círculo")
+    r = st.number_input("Raio", min_value=0.0, step=0.1)
+    theta = st.number_input("Ângulo θ (opcional)", min_value=0.0, step=0.1)
+    corda = st.number_input("Corda (opcional)", min_value=0.0, step=0.1)
+    if st.button("Calcular Círculo"):
+        st.write(circulo(r, theta if theta>0 else None, corda if corda>0 else None))
+
+with tab3:
+    st.header("⬛ Quadrado")
+    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="quad")
+    if st.button("Calcular Quadrado"):
+        st.write(quadrado(lado))
+
+with tab4:
+    st.header("▭ Retângulo")
+    base = st.number_input("Base", min_value=0.0, step=0.1, key="ret_base")
+    altura = st.number_input("Altura", min_value=0.0, step=0.1, key="ret_alt")
+    if st.button("Calcular Retângulo"):
+        st.write(retangulo(base, altura))
+
+with tab5:
+    st.header("⬟ Losango")
+    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="los_lado")
+    D = st.number_input("Diagonal maior", min_value=0.0, step=0.1)
+    d = st.number_input("Diagonal menor", min_value=0.0, step=0.1)
+    if st.button("Calcular Losango"):
+        st.write(losango(lado, D, d))
+
+with tab6:
+    st.header("▱ Paralelogramo")
+    base = st.number_input("Base", min_value=0.0, step=0.1, key="par_base")
+    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="par_lado")
+    altura = st.number_input("Altura (opcional)", min_value=0.0, step=0.1)
+    angulo = st.number_input("Ângulo (graus, opcional)", min_value=0.0, step=0.1)
+    if st.button("Calcular Paralelogramo"):
+        st.write(paralelogramo(base, lado, altura if altura>0 else None, angulo if angulo>0 else None))
+
+with tab7:
+    st.header("Trapézio e Polígono Regular")
+    B = st.number_input("Base maior (Trapézio)", min_value=0.0, step=0.1)
+    b = st.number_input("Base menor (Trapézio)", min_value=0.0, step=0.1)
+    l1 = st.number_input("Lado 1 (Trapézio)", min_value=0.0, step=0.1)
+    l2 = st.number_input("Lado 2 (Trapézio)", min_value=0.0, step=0.1)
+    h = st.number_input("Altura (Trapézio, opcional)", min_value=0.0, step=0.1)
+    if st.button("Calcular Trapézio"):
+        st.write(trapezio(B, b, l1, l2, h if h>0 else None))
+
+    n = st.number_input("Número de lados (5 a 10)", min_value=5, max_value=10, step=1)
+    lado = st.number_input("Lado (Polígono, opcional)", min_value=0.0, step=0.1, key="pol_lado")
+    R = st.number_input("Raio circunscrito (Polígono, opcional)", min_value=0.0, step=0.1, key="pol_R")
+    if st.button("Calcular Polígono"):
+        st.write(poligono(n, lado if lado>0 else None, R if R>0 else None))
+# =========================================================
+# Funções de cálculo – Parte 2
+# =========================================================
 
 # -----------------------------
 # Cubo
 # -----------------------------
-@app.route("/cubo_detalhado")
-def cubo_detalhado():
-    lado = request.args.get("lado", type=float)
+def cubo(lado):
     if not lado or lado <= 0:
-        return jsonify({"erro": "Forneça o lado > 0"}), 400
-
-    resultado = {"figura": "cubo"}
-    resultado["volume"] = round(lado**3,4)
-    resultado["area_superficie"] = round(6*lado**2,4)
-    resultado["diagonal_face"] = round(lado*math.sqrt(2),4)
-    resultado["diagonal_cubo"] = round(lado*math.sqrt(3),4)
-    resultado["raio_inscrito"] = round(lado/2,4)
-    resultado["raio_circunscrito"] = round((lado*math.sqrt(3))/2,4)
-
-    return jsonify(resultado)
+        return {"erro": "Forneça lado > 0"}
+    return {
+        "volume": round(lado**3,4),
+        "área_superfície": round(6*lado**2,4),
+        "diagonal_face": round(lado*math.sqrt(2),4),
+        "diagonal_cubo": round(lado*math.sqrt(3),4),
+        "raio_inscrito": round(lado/2,4),
+        "raio_circunscrito": round((lado*math.sqrt(3))/2,4)
+    }
 
 # -----------------------------
 # Paralelepípedo
 # -----------------------------
-@app.route("/paralelepipedo_detalhado")
-def paralelepipedo_detalhado():
-    try:
-        c = float(request.args.get("c"))
-        l = float(request.args.get("l"))
-        h = float(request.args.get("h"))
-    except:
-        return jsonify({"erro": "Forneça c, l e h"}), 400
-
+def paralelepipedo(c, l, h):
     if c <= 0 or l <= 0 or h <= 0:
-        return jsonify({"erro": "Todos os lados devem ser positivos"}), 400
-
-    resultado = {"figura": "paralelepípedo"}
-    resultado["volume"] = round(c*l*h,4)
-    resultado["area_superficie"] = round(2*(c*l + c*h + l*h),4)
-    resultado["diagonal_espacial"] = round(math.sqrt(c**2 + l**2 + h**2),4)
-    resultado["diagonais_faces"] = {
-        "cl": round(math.sqrt(c**2 + l**2),4),
-        "ch": round(math.sqrt(c**2 + h**2),4),
-        "lh": round(math.sqrt(l**2 + h**2),4),
+        return {"erro": "Todos os lados devem ser positivos"}
+    resultado = {
+        "volume": round(c*l*h,4),
+        "área_superfície": round(2*(c*l + c*h + l*h),4),
+        "diagonal_espacial": round(math.sqrt(c**2 + l**2 + h**2),4),
+        "diagonais_faces": {
+            "cl": round(math.sqrt(c**2 + l**2),4),
+            "ch": round(math.sqrt(c**2 + h**2),4),
+            "lh": round(math.sqrt(l**2 + h**2),4),
+        }
     }
-
     if abs(c-l)<1e-6 and abs(l-h)<1e-6:
-        resultado["classificacao"] = "cubo (caso especial)"
-
-    return jsonify(resultado)
+        resultado["classificação"] = "cubo (caso especial)"
+    return resultado
 
 # -----------------------------
-# Prisma regular
+# Prisma Regular
 # -----------------------------
-@app.route("/prisma_detalhado")
-def prisma_detalhado():
-    try:
-        n = int(request.args.get("n"))
-        lado = float(request.args.get("lado"))
-        h = float(request.args.get("h"))
-    except:
-        return jsonify({"erro": "Forneça n, lado e h"}), 400
-
+def prisma(n, lado, h):
     if n < 3:
-        return jsonify({"erro": "Prisma precisa de base com pelo menos 3 lados"}), 400
+        return {"erro": "Prisma precisa base com pelo menos 3 lados"}
     if lado <= 0 or h <= 0:
-        return jsonify({"erro": "Lado e altura devem ser positivos"}), 400
-
-    resultado = {"figura": f"prisma regular de base {n}-gonal"}
+        return {"erro": "Lado e altura devem ser positivos"}
     perimetro = n*lado
     apotema = lado/(2*math.tan(math.pi/n))
     area_base = (perimetro*apotema)/2
     area_lateral = perimetro*h
     area_total = 2*area_base + area_lateral
     volume = area_base*h
-
-    resultado["perimetro_base"] = round(perimetro,4)
-    resultado["area_base"] = round(area_base,4)
-    resultado["apotema_base"] = round(apotema,4)
-    resultado["area_lateral"] = round(area_lateral,4)
-    resultado["area_total"] = round(area_total,4)
-    resultado["volume"] = round(volume,4)
-
-    return jsonify(resultado)
+    return {
+        "perímetro_base": round(perimetro,4),
+        "área_base": round(area_base,4),
+        "apotema_base": round(apotema,4),
+        "área_lateral": round(area_lateral,4),
+        "área_total": round(area_total,4),
+        "volume": round(volume,4)
+    }
 
 # -----------------------------
 # Cilindro
 # -----------------------------
-@app.route("/cilindro_detalhado")
-def cilindro_detalhado():
-    try:
-        r = float(request.args.get("r"))
-        h = float(request.args.get("h"))
-    except:
-        return jsonify({"erro": "Forneça r e h"}), 400
-
+def cilindro(r, h):
     if r <= 0 or h <= 0:
-        return jsonify({"erro": "Raio e altura devem ser positivos"}), 400
-
-    resultado = {"figura": "cilindro"}
+        return {"erro": "Raio e altura devem ser positivos"}
     area_base = math.pi*r**2
     area_lateral = 2*math.pi*r*h
     area_total = 2*area_base + area_lateral
     volume = area_base*h
-
-    resultado["area_base"] = round(area_base,4)
-    resultado["area_lateral"] = round(area_lateral,4)
-    resultado["area_total"] = round(area_total,4)
-    resultado["volume"] = round(volume,4)
-
+    resultado = {
+        "área_base": round(area_base,4),
+        "área_lateral": round(area_lateral,4),
+        "área_total": round(area_total,4),
+        "volume": round(volume,4)
+    }
     if abs(r-h)<1e-6:
-        resultado["classificacao"] = "cilindro equilátero (raio = altura)"
+        resultado["classificação"] = "cilindro equilátero (raio = altura)"
+    return resultado
 
-    return jsonify(resultado)
 # -----------------------------
 # Cone
 # -----------------------------
-@app.route("/cone_detalhado")
-def cone_detalhado():
-    try:
-        r = float(request.args.get("r"))
-        h = float(request.args.get("h"))
-    except:
-        return jsonify({"erro": "Forneça r e h"}), 400
-
+def cone(r, h):
     if r <= 0 or h <= 0:
-        return jsonify({"erro": "Raio e altura devem ser positivos"}), 400
-
-    resultado = {"figura": "cone"}
+        return {"erro": "Raio e altura devem ser positivos"}
     g = math.sqrt(r**2 + h**2)
     area_base = math.pi*r**2
     area_lateral = math.pi*r*g
     area_total = area_base + area_lateral
     volume = (math.pi*r**2*h)/3
-
-    resultado["geratriz"] = round(g,4)
-    resultado["area_base"] = round(area_base,4)
-    resultado["area_lateral"] = round(area_lateral,4)
-    resultado["area_total"] = round(area_total,4)
-    resultado["volume"] = round(volume,4)
-
+    resultado = {
+        "geratriz": round(g,4),
+        "área_base": round(area_base,4),
+        "área_lateral": round(area_lateral,4),
+        "área_total": round(area_total,4),
+        "volume": round(volume,4)
+    }
     if abs(r-h)<1e-6:
-        resultado["classificacao"] = "cone equilátero (raio = altura)"
-
-    return jsonify(resultado)
+        resultado["classificação"] = "cone equilátero (raio = altura)"
+    return resultado
 
 # -----------------------------
 # Esfera
 # -----------------------------
-@app.route("/esfera_detalhada")
-def esfera_detalhada():
-    try:
-        r = float(request.args.get("r"))
-    except:
-        return jsonify({"erro": "Forneça o raio r"}), 400
-
+def esfera(r, h=None):
     if r <= 0:
-        return jsonify({"erro": "Raio deve ser positivo"}), 400
-
-    resultado = {"figura": "esfera"}
+        return {"erro": "Raio deve ser positivo"}
     area = 4*math.pi*r**2
     volume = (4/3)*math.pi*r**3
     circ_max = 2*math.pi*r
-
-    resultado["diametro"] = round(2*r,4)
-    resultado["area_superficie"] = round(area,4)
-    resultado["volume"] = round(volume,4)
-    resultado["circunferencia_maxima"] = round(circ_max,4)
-
-    # Calota esférica (opcional, se altura fornecida)
-    h = request.args.get("h", type=float)
+    resultado = {
+        "diâmetro": round(2*r,4),
+        "área_superfície": round(area,4),
+        "volume": round(volume,4),
+        "circunferência_máxima": round(circ_max,4)
+    }
     if h and 0 < h < 2*r:
         area_calota = 2*math.pi*r*h
         volume_calota = (math.pi*h**2*(3*r-h))/3
         resultado["calota"] = {
             "altura": h,
-            "area": round(area_calota,4),
+            "área": round(area_calota,4),
             "volume": round(volume_calota,4)
         }
-
-    return jsonify(resultado)
+    return resultado
 
 # -----------------------------
 # Pirâmide
 # -----------------------------
-@app.route("/piramide_detalhada")
-def piramide_detalhada():
-    try:
-        n = int(request.args.get("n"))       # lados da base
-        lado = float(request.args.get("lado"))
-        h = float(request.args.get("h"))
-    except:
-        return jsonify({"erro": "Forneça n (3 a 6), lado e h"}), 400
-
+def piramide(n, lado, h):
     if n < 3 or n > 6:
-        return jsonify({"erro": "Pirâmide só aceita base de 3 a 6 lados"}), 400
+        return {"erro": "Pirâmide só aceita base de 3 a 6 lados"}
     if lado <= 0 or h <= 0:
-        return jsonify({"erro": "Lado e altura devem ser positivos"}), 400
-
-    # Perímetro e apótema da base
+        return {"erro": "Lado e altura devem ser positivos"}
     perimetro_base = n*lado
     apotema_base = lado/(2*math.tan(math.pi/n))
     area_base = (perimetro_base*apotema_base)/2
-
-    # Apótema lateral
     apotema_lateral = math.sqrt(h**2 + apotema_base**2)
-
-    # Áreas e volume
     area_lateral = (perimetro_base*apotema_lateral)/2
     area_total = area_base + area_lateral
     volume = (area_base*h)/3
-
     nomes = {3:"triangular",4:"quadrada",5:"pentagonal",6:"hexagonal"}
+    return {
+        "figura": f"pirâmide regular {nomes[n]}",
+        "perímetro_base": round(perimetro_base,4),
+        "apotema_base": round(apotema_base,4),
+        "área_base": round(area_base,4),
+        "apotema_lateral": round(apotema_lateral,4),
+        "área_lateral": round(area_lateral,4),
+        "área_total": round(area_total,4),
+        "volume": round(volume,4)
+    }
 
-    resultado = {"figura": f"pirâmide regular {nomes[n]}"}
-    resultado["perimetro_base"] = round(perimetro_base,4)
-    resultado["apotema_base"] = round(apotema_base,4)
-    resultado["area_base"] = round(area_base,4)
-    resultado["apotema_lateral"] = round(apotema_lateral,4)
-    resultado["area_lateral"] = round(area_lateral,4)
-    resultado["area_total"] = round(area_total,4)
-    resultado["volume"] = round(volume,4)
 
-    return jsonify(resultado)
+# =========================================================
+# Interface Streamlit – Parte 2
+# =========================================================
+tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs([
+    "Cubo", "Paralelepípedo", "Prisma", "Cilindro", "Cone", "Esfera", "Pirâmide"
+])
 
-# -----------------------------
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+with tab8:
+    st.header("⬛ Cubo")
+    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="cubo_lado")
+    if st.button("Calcular Cubo"):
+        st.write(cubo(lado))
+
+with tab9:
+    st.header("📦 Paralelepípedo")
+    c = st.number_input("Comprimento", min_value=0.0, step=0.1)
+    l = st.number_input("Largura", min_value=0.0, step=0.1)
+    h = st.number_input("Altura", min_value=0.0, step=0.1)
+    if st.button("Calcular Paralelepípedo"):
+        st.write(paralelepipedo(c, l, h))
+
+with tab10:
+    st.header("🔺 Prisma Regular")
+    n = st.number_input("Número de lados da base", min_value=3, step=1)
+    lado = st.number_input("Lado da base", min_value=0.0, step=0.1, key="prisma_lado")
+    h = st.number_input("Altura", min_value=0.0, step=0.1, key="prisma_alt")
+    if st.button("Calcular Prisma"):
+        st.write(prisma(n, lado, h))
+
+with tab11:
+    st.header("🟠 Cilindro")
+    r = st.number_input("Raio", min_value=0.0, step=0.1, key="cil_r")
+    h = st.number_input("Altura", min_value=0.0, step=0.1, key="cil_h")
+    if st.button("Calcular Cilindro"):
+        st.write(cilindro(r, h))
+
+with tab12:
+    st.header("🔻 Cone")
+    r = st.number_input("Raio", min_value=0.0, step=0.1, key="cone_r")
+    h = st.number_input("Altura", min_value=0.0, step=0.1, key="cone_h")
+    if st.button("Calcular Cone"):
+        st.write(cone(r, h))
+
+with tab13:
+    st.header("⚪ Esfera")
+    r = st.number_input("Raio", min_value=0.0, step=0.1, key="esf_r")
+    h = st.number_input("Altura da calota (opcional)", min_value=0.0, step=0.1)
+    if st.button("Calcular Esfera"):
+        st.write(esfera(r, h if h>0 else None))
+
+with tab14:
+    st.header("⛏️ Pirâmide Regular")
+    n = st.number_input("Número de lados da base (3 a 6)", min_value=3, max_value=6, step=1)
+    lado = st.number_input("Lado da base", min_value=0.0, step=0.1, key="pir_lado")
+    h = st.number_input("Altura", min_value=0.0, step=0.1, key="pir_h")
+    if st.button("Calcular Pirâmide"):
+        st.write(piramide(n, lado, h))
