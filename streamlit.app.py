@@ -577,3 +577,43 @@ with tab14:
         resultado = piramide(n, lado, h)
         st.write(resultado)
         # (plot podemos implementar depois)
+def plot_figura_3d(tipo, **params):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    if tipo == "cubo":
+        # (já feito, deixamos igual)
+        ...
+    
+    elif tipo == "esfera":
+        ...
+    
+    elif tipo == "cilindro":
+        ...
+    
+    elif tipo == "cone":
+        ...
+
+    elif tipo == "pirâmide":
+        n = params.get("n", 4)     # nº de lados da base
+        lado = params.get("lado", 1)
+        h = params.get("h", 2)
+
+        # Raio da circunferência circunscrita da base
+        R = lado / (2 * math.sin(math.pi / n))
+
+        # Vértices da base
+        base = [(R * math.cos(2*math.pi*i/n), R * math.sin(2*math.pi*i/n), 0) for i in range(n)]
+        topo = (0, 0, h)
+
+        # Desenhar base
+        xs, ys, zs = zip(*base, base[0])  # fecha o polígono
+        ax.plot(xs, ys, zs, color="g")
+
+        # Desenhar arestas até o topo
+        for v in base:
+            ax.plot([v[0], topo[0]], [v[1], topo[1]], [v[2], topo[2]], color="g")
+
+        ax.set_box_aspect([1,1,1])  # escala igual
+
+    st.pyplot(fig)
