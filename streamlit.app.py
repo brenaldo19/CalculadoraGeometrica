@@ -598,4 +598,5 @@ with tab14:
     if st.button("Calcular Pirâmide"):
         resultado = piramide(n, lado, h)
         st.write(resultado)
-        # (plot podemos implementar depois)
+        if "erro" not in resultado:
+            plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
