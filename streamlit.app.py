@@ -68,24 +68,42 @@ Circunferência = 2πr = 2π*{r} = {circ:.4f}
 def quadrado(lado):
     if lado <= 0:
         return {"erro": "Forneça lado positivo!"}, ""
-    per = 4*lado
-    area = lado**2
+    
+    per = 4 * lado
+    area = lado ** 2
+    diag = lado * math.sqrt(2)
+    
     explicacao = f"""⬛ Quadrado
-Perímetro = 4*lado = 4*{lado} = {per}
-Área = lado² = {lado}² = {area}
+Perímetro = 4·lado = 4·{lado} = {per:.4f}
+Área = lado² = {lado}² = {area:.4f}
+Diagonal = lado·√2 = {lado}·√2 = {diag:.4f}
 """
-    return {"perímetro": per, "área": area}, explicacao
+    return {
+        "perímetro": round(per,4),
+        "área": round(area,4),
+        "diagonal": round(diag,4)
+    }, explicacao
+
 
 def retangulo(base, altura):
     if base <= 0 or altura <= 0:
         return {"erro": "Base e altura devem ser positivos!"}, ""
-    per = 2*(base+altura)
-    area = base*altura
+    
+    per = 2 * (base + altura)
+    area = base * altura
+    diag = math.sqrt(base**2 + altura**2)
+    
     explicacao = f"""▭ Retângulo
-Perímetro = 2*(b+h) = 2*({base}+{altura}) = {per}
-Área = b*h = {base}*{altura} = {area}
+Perímetro = 2·(b+h) = 2·({base}+{altura}) = {per:.4f}
+Área = b·h = {base}·{altura} = {area:.4f}
+Diagonal = √(b²+h²) = √({base}²+{altura}²) = {diag:.4f}
 """
-    return {"perímetro": per, "área": area}, explicacao
+    return {
+        "perímetro": round(per,4),
+        "área": round(area,4),
+        "diagonal": round(diag,4)
+    }, explicacao
+
 
 def losango(lado, D, d):
     if lado <= 0 or D <= 0 or d <= 0:
@@ -1357,4 +1375,807 @@ with tab_triang_inv:
         P = entrada_numero("Perímetro")
         if st.button("Calcular Caso 20"):
             r,exp = triangulo_inverso(caso,area=area,perimetro=P)
+            st.write(r); st.code(exp)
+# =========================================================
+# Quadrado Inverso – 3 casos
+# =========================================================
+
+def quadrado_inverso(caso, **kwargs):
+    # Caso 1 – Área → lado, perímetro, diagonal
+    if caso == 1:
+        A = kwargs["area"]
+        if A <= 0: 
+            return {"erro":"Área inválida"}, ""
+        a = math.sqrt(A)
+        P = 4*a
+        d = a*math.sqrt(2)
+        exp = f"Lado = √A = {a:.4f}\nPerímetro = 4a = {P:.4f}\nDiagonal = a√2 = {d:.4f}"
+        return {"lado":round(a,4),"perimetro":round(P,4),"diagonal":round(d,4)}, exp
+
+    # Caso 2 – Perímetro → lado, área, diagonal
+    if caso == 2:
+        P = kwargs["perimetro"]
+        if P <= 0: 
+            return {"erro":"Perímetro inválido"}, ""
+        a = P/4
+        A = a**2
+        d = a*math.sqrt(2)
+        exp = f"Lado = P/4 = {a:.4f}\nÁrea = a² = {A:.4f}\nDiagonal = a√2 = {d:.4f}"
+        return {"lado":round(a,4),"area":round(A,4),"diagonal":round(d,4)}, exp
+
+    # Caso 3 – Diagonal → lado, área, perímetro
+    if caso == 3:
+        d = kwargs["diagonal"]
+        if d <= 0:
+            return {"erro":"Diagonal inválida"}, ""
+        a = d/math.sqrt(2)
+        A = a**2
+        P = 4*a
+        exp = f"Lado = d/√2 = {a:.4f}\nÁrea = a² = {A:.4f}\nPerímetro = 4a = {P:.4f}"
+        return {"lado":round(a,4),"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    return {"erro":"Caso não reconhecido"}, ""
+
+# =========================================================
+# Interface – Quadrado Inverso (3 casos)
+# =========================================================
+tab_quad_inv = st.tabs(["⬜ Quadrado Inverso"])[0]
+
+casos_quad = [
+    "1. Área → lado, perímetro, diagonal",
+    "2. Perímetro → lado, área, diagonal",
+    "3. Diagonal → lado, área, perímetro"
+]
+
+with tab_quad_inv:
+    st.header("⬜ Quadrado Inverso")
+    caso_txt = st.selectbox("Selecione o caso", casos_quad)
+    caso = int(caso_txt.split(".")[0])
+
+    # Caso 1
+    if caso == 1:
+        A = entrada_numero("Área")
+        if st.button("Calcular Caso 1"):
+            r,exp = quadrado_inverso(caso, area=A)
+            st.write(r); st.code(exp)
+
+    # Caso 2
+    if caso == 2:
+        P = entrada_numero("Perímetro")
+        if st.button("Calcular Caso 2"):
+            r,exp = quadrado_inverso(caso, perimetro=P)
+            st.write(r); st.code(exp)
+
+    # Caso 3
+    if caso == 3:
+        d = entrada_numero("Diagonal")
+        if st.button("Calcular Caso 3"):
+            r,exp = quadrado_inverso(caso, diagonal=d)
+            st.write(r); st.code(exp)
+
+# =========================================================
+# Retângulo Inverso – 3 casos
+# =========================================================
+
+def retangulo_inverso(caso, **kwargs):
+    # Caso 1 – Área + lado → outro lado, perímetro, diagonal
+    if caso == 1:
+        A, b = kwargs["area"], kwargs["lado"]
+        if A <= 0 or b <= 0: 
+            return {"erro":"Valores inválidos"}, ""
+        h = A / b
+        P = 2 * (b + h)
+        d = math.sqrt(b**2 + h**2)
+        exp = f"h = A/b = {h:.4f}\nP = 2(b+h) = {P:.4f}\nDiagonal = √(b²+h²) = {d:.4f}"
+        return {"altura":round(h,4),"perimetro":round(P,4),"diagonal":round(d,4)}, exp
+
+    # Caso 2 – Perímetro + lado → outro lado, área, diagonal
+    if caso == 2:
+        P, b = kwargs["perimetro"], kwargs["lado"]
+        if P <= 0 or b <= 0: 
+            return {"erro":"Valores inválidos"}, ""
+        h = P/2 - b
+        if h <= 0: 
+            return {"erro":"Perímetro incompatível com o lado"}, ""
+        A = b * h
+        d = math.sqrt(b**2 + h**2)
+        exp = f"h = P/2 - b = {h:.4f}\nÁrea = b·h = {A:.4f}\nDiagonal = √(b²+h²) = {d:.4f}"
+        return {"altura":round(h,4),"area":round(A,4),"diagonal":round(d,4)}, exp
+
+    # Caso 3 – Diagonal + lado → outro lado, área, perímetro
+    if caso == 3:
+        d, b = kwargs["diagonal"], kwargs["lado"]
+        if d <= 0 or b <= 0 or d <= b: 
+            return {"erro":"Valores inválidos"}, ""
+        h = math.sqrt(d**2 - b**2)
+        A = b * h
+        P = 2 * (b + h)
+        exp = f"h = √(d² - b²) = {h:.4f}\nÁrea = b·h = {A:.4f}\nPerímetro = 2(b+h) = {P:.4f}"
+        return {"altura":round(h,4),"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    return {"erro":"Caso não reconhecido"}, ""
+
+
+# =========================================================
+# Interface – Retângulo Inverso (3 casos)
+# =========================================================
+tab_ret_inv = st.tabs(["▭ Retângulo Inverso"])[0]
+
+casos_ret = [
+    "1. Área + lado → outro lado, perímetro, diagonal",
+    "2. Perímetro + lado → outro lado, área, diagonal",
+    "3. Diagonal + lado → outro lado, área, perímetro"
+]
+
+with tab_ret_inv:
+    st.header("▭ Retângulo Inverso")
+    caso_txt = st.selectbox("Selecione o caso", casos_ret)
+    caso = int(caso_txt.split(".")[0])
+
+    # Caso 1
+    if caso == 1:
+        A = entrada_numero("Área")
+        b = entrada_numero("Lado conhecido (base ou altura)")
+        if st.button("Calcular Caso 1"):
+            r,exp = retangulo_inverso(caso, area=A, lado=b)
+            st.write(r); st.code(exp)
+
+    # Caso 2
+    if caso == 2:
+        P = entrada_numero("Perímetro")
+        b = entrada_numero("Lado conhecido (base ou altura)")
+        if st.button("Calcular Caso 2"):
+            r,exp = retangulo_inverso(caso, perimetro=P, lado=b)
+            st.write(r); st.code(exp)
+
+    # Caso 3
+    if caso == 3:
+        d = entrada_numero("Diagonal")
+        b = entrada_numero("Lado conhecido (base ou altura)")
+        if st.button("Calcular Caso 3"):
+            r,exp = retangulo_inverso(caso, diagonal=d, lado=b)
+            st.write(r); st.code(exp)
+
+
+# =========================================================
+# Losango Inverso – 5 casos
+# =========================================================
+
+def losango_inverso(caso, **kwargs):
+    # Caso 1 – Duas diagonais
+    if caso == 1:
+        D, d = kwargs["D"], kwargs["d"]
+        if D <= 0 or d <= 0:
+            return {"erro":"Diagonais inválidas"}, ""
+        A = (D * d) / 2
+        L = math.sqrt((D/2)**2 + (d/2)**2)
+        P = 4*L
+        exp = f"A=(D·d)/2={A:.4f}\nL=√((D/2)²+(d/2)²)={L:.4f}\nP=4L={P:.4f}"
+        return {"area":round(A,4),"lado":round(L,4),"perimetro":round(P,4)}, exp
+
+    # Caso 2 – Área + diagonal maior
+    if caso == 2:
+        A, D = kwargs["area"], kwargs["D"]
+        if A <= 0 or D <= 0:
+            return {"erro":"Valores inválidos"}, ""
+        d = (2*A)/D
+        L = math.sqrt((D/2)**2 + (d/2)**2)
+        P = 4*L
+        exp = f"d=2A/D={d:.4f}\nL=√((D/2)²+(d/2)²)={L:.4f}\nP=4L={P:.4f}"
+        return {"diagonal_menor":round(d,4),"lado":round(L,4),"perimetro":round(P,4)}, exp
+
+    # Caso 3 – Área + diagonal menor
+    if caso == 3:
+        A, d = kwargs["area"], kwargs["d"]
+        if A <= 0 or d <= 0:
+            return {"erro":"Valores inválidos"}, ""
+        D = (2*A)/d
+        L = math.sqrt((D/2)**2 + (d/2)**2)
+        P = 4*L
+        exp = f"D=2A/d={D:.4f}\nL=√((D/2)²+(d/2)²)={L:.4f}\nP=4L={P:.4f}"
+        return {"diagonal_maior":round(D,4),"lado":round(L,4),"perimetro":round(P,4)}, exp
+
+    # Caso 4 – Lado + ângulo
+    if caso == 4:
+        L, ang = kwargs["lado"], math.radians(kwargs["angulo"])
+        if L <= 0 or ang <= 0 or ang >= math.pi:
+            return {"erro":"Valores inválidos"}, ""
+        A = L**2 * math.sin(ang)
+        D = 2*L*math.cos(ang/2)
+        d = 2*L*math.sin(ang/2)
+        P = 4*L
+        exp = f"A=L²·senθ={A:.4f}\nD=2L·cos(θ/2)={D:.4f}\nd=2L·sen(θ/2)={d:.4f}\nP=4L={P:.4f}"
+        return {"area":round(A,4),"D":round(D,4),"d":round(d,4),"perimetro":round(P,4)}, exp
+
+    # Caso 5 – Área + lado
+    if caso == 5:
+        A, L = kwargs["area"], kwargs["lado"]
+        if A <= 0 or L <= 0 or A > L**2:
+            return {"erro":"Valores inválidos"}, ""
+        sen_t = A / (L**2)
+        ang = math.degrees(math.asin(sen_t))
+        D = 2*L*math.cos(math.radians(ang/2))
+        d = 2*L*math.sin(math.radians(ang/2))
+        P = 4*L
+        exp = f"senθ=A/L²={sen_t:.4f} → θ={ang:.4f}°\nD=2L·cos(θ/2)={D:.4f}\nd=2L·sen(θ/2)={d:.4f}\nP=4L={P:.4f}"
+        return {"angulo":round(ang,4),"D":round(D,4),"d":round(d,4),"perimetro":round(P,4)}, exp
+
+    return {"erro":"Caso não reconhecido"}, ""
+
+
+# =========================================================
+# Interface – Losango Inverso (5 casos)
+# =========================================================
+tab_los_inv = st.tabs(["♦️ Losango Inverso"])[0]
+
+casos_los = [
+    "1. Duas diagonais → área, lado, perímetro",
+    "2. Área + diagonal maior → diagonal menor, lado, perímetro",
+    "3. Área + diagonal menor → diagonal maior, lado, perímetro",
+    "4. Lado + ângulo → área, diagonais, perímetro",
+    "5. Área + lado → ângulo, diagonais, perímetro"
+]
+
+with tab_los_inv:
+    st.header("♦️ Losango Inverso")
+    caso_txt = st.selectbox("Selecione o caso", casos_los)
+    caso = int(caso_txt.split(".")[0])
+
+    if caso == 1:
+        D = entrada_numero("Diagonal maior (D)")
+        d = entrada_numero("Diagonal menor (d)")
+        if st.button("Calcular Caso 1"):
+            r,exp = losango_inverso(caso, D=D, d=d)
+            st.write(r); st.code(exp)
+
+    if caso == 2:
+        A = entrada_numero("Área")
+        D = entrada_numero("Diagonal maior (D)")
+        if st.button("Calcular Caso 2"):
+            r,exp = losango_inverso(caso, area=A, D=D)
+            st.write(r); st.code(exp)
+
+    if caso == 3:
+        A = entrada_numero("Área")
+        d = entrada_numero("Diagonal menor (d)")
+        if st.button("Calcular Caso 3"):
+            r,exp = losango_inverso(caso, area=A, d=d)
+            st.write(r); st.code(exp)
+
+    if caso == 4:
+        L = entrada_numero("Lado")
+        ang = entrada_numero("Ângulo interno (graus)")
+        if st.button("Calcular Caso 4"):
+            r,exp = losango_inverso(caso, lado=L, angulo=ang)
+            st.write(r); st.code(exp)
+
+    if caso == 5:
+        A = entrada_numero("Área")
+        L = entrada_numero("Lado")
+        if st.button("Calcular Caso 5"):
+            r,exp = losango_inverso(caso, area=A, lado=L)
+            st.write(r); st.code(exp)
+# =========================================================
+# Trapézio Inverso – 6 casos
+# =========================================================
+
+def trapezio_inverso(caso, **kwargs):
+    # Caso 1 – Bases + altura
+    if caso == 1:
+        B,b,h = kwargs["B"],kwargs["b"],kwargs["h"]
+        if B<=0 or b<=0 or h<=0:
+            return {"erro":"Valores inválidos"}, ""
+        A=((B+b)*h)/2
+        L=math.sqrt(((B-b)/2)**2+h**2)
+        P=B+b+2*L
+        exp=f"A=((B+b)·h)/2={A:.4f}\nL=√(((B-b)/2)²+h²)={L:.4f}\nP=B+b+2L={P:.4f}"
+        return {"area":round(A,4),"lado_obliquo":round(L,4),"perimetro":round(P,4)}, exp
+
+    # Caso 2 – Área + bases
+    if caso == 2:
+        A,B,b = kwargs["area"],kwargs["B"],kwargs["b"]
+        if A<=0 or B<=0 or b<=0:
+            return {"erro":"Valores inválidos"}, ""
+        h=(2*A)/(B+b)
+        exp=f"h=2A/(B+b)={h:.4f}"
+        return {"altura":round(h,4)}, exp
+
+    # Caso 3 – Bases + lados oblíquos
+    if caso == 3:
+        B,b,L = kwargs["B"],kwargs["b"],kwargs["lado"]
+        if B<=0 or b<=0 or L<=0 or B<=b:
+            return {"erro":"Valores inválidos"}, ""
+        h=math.sqrt(L**2-((B-b)/2)**2)
+        A=((B+b)*h)/2
+        P=B+b+2*L
+        exp=f"h=√(L²-((B-b)/2)²)={h:.4f}\nA=((B+b)·h)/2={A:.4f}\nP=B+b+2L={P:.4f}"
+        return {"altura":round(h,4),"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    # Caso 4 – Bases + ângulo
+    if caso == 4:
+        B,b,ang = kwargs["B"],kwargs["b"],math.radians(kwargs["angulo"])
+        if B<=0 or b<=0 or ang<=0 or ang>=math.pi/2:
+            return {"erro":"Valores inválidos"}, ""
+        h=((B-b)/2)*math.tan(ang)
+        L=h/math.sin(ang)
+        A=((B+b)*h)/2
+        P=B+b+2*L
+        exp=f"h=((B-b)/2)·tanθ={h:.4f}\nL=h/senθ={L:.4f}\nA=((B+b)·h)/2={A:.4f}\nP=B+b+2L={P:.4f}"
+        return {"altura":round(h,4),"lado_obliquo":round(L,4),"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    # Caso 5 – Área + altura + base maior
+    if caso == 5:
+        A,h,B=kwargs["area"],kwargs["h"],kwargs["B"]
+        if A<=0 or h<=0 or B<=0:
+            return {"erro":"Valores inválidos"}, ""
+        b=(2*A)/h - B
+        exp=f"b=2A/h-B={b:.4f}"
+        return {"base_menor":round(b,4)}, exp
+
+    # Caso 6 – Bases + diagonais
+    if caso == 6:
+        B,b,d1,d2=kwargs["B"],kwargs["b"],kwargs["d1"],kwargs["d2"]
+        if B<=0 or b<=0 or d1<=0 or d2<=0:
+            return {"erro":"Valores inválidos"}, ""
+        # Fórmula via Brahmagupta adaptada (trapézio = quadrilátero cíclico quando isósceles)
+        # Aproximação: média geométrica
+        h=math.sqrt(d1**2 - ((B-b)/2)**2)
+        A=((B+b)*h)/2
+        exp=f"h≈√(d1²-((B-b)/2)²)={h:.4f}\nA=((B+b)·h)/2={A:.4f}"
+        return {"altura":round(h,4),"area":round(A,4)}, exp
+
+    return {"erro":"Caso não reconhecido"}, ""
+
+
+# =========================================================
+# Interface – Trapézio Inverso (6 casos)
+# =========================================================
+tab_trap_inv = st.tabs(["⏢ Trapézio Inverso"])[0]
+
+casos_trap = [
+    "1. Bases + altura → área, perímetro (isósceles)",
+    "2. Área + bases → altura",
+    "3. Bases + lados oblíquos → altura, área, perímetro",
+    "4. Bases + ângulo → altura, lados, área, perímetro",
+    "5. Área + altura + base maior → base menor",
+    "6. Bases + diagonais → altura, área"
+]
+
+with tab_trap_inv:
+    st.header("⏢ Trapézio Inverso")
+    caso_txt = st.selectbox("Selecione o caso", casos_trap)
+    caso = int(caso_txt.split(".")[0])
+
+    if caso == 1:
+        B=entrada_numero("Base maior (B)")
+        b=entrada_numero("Base menor (b)")
+        h=entrada_numero("Altura (h)")
+        if st.button("Calcular Caso 1"):
+            r,exp=trapezio_inverso(caso,B=B,b=b,h=h)
+            st.write(r); st.code(exp)
+
+    if caso == 2:
+        A=entrada_numero("Área")
+        B=entrada_numero("Base maior (B)")
+        b=entrada_numero("Base menor (b)")
+        if st.button("Calcular Caso 2"):
+            r,exp=trapezio_inverso(caso,area=A,B=B,b=b)
+            st.write(r); st.code(exp)
+
+    if caso == 3:
+        B=entrada_numero("Base maior (B)")
+        b=entrada_numero("Base menor (b)")
+        L=entrada_numero("Lado oblíquo (isósceles)")
+        if st.button("Calcular Caso 3"):
+            r,exp=trapezio_inverso(caso,B=B,b=b,lado=L)
+            st.write(r); st.code(exp)
+
+    if caso == 4:
+        B=entrada_numero("Base maior (B)")
+        b=entrada_numero("Base menor (b)")
+        ang=entrada_numero("Ângulo com a base maior (graus)")
+        if st.button("Calcular Caso 4"):
+            r,exp=trapezio_inverso(caso,B=B,b=b,angulo=ang)
+            st.write(r); st.code(exp)
+
+    if caso == 5:
+        A=entrada_numero("Área")
+        h=entrada_numero("Altura (h)")
+        B=entrada_numero("Base maior (B)")
+        if st.button("Calcular Caso 5"):
+            r,exp=trapezio_inverso(caso,area=A,h=h,B=B)
+            st.write(r); st.code(exp)
+
+    if caso == 6:
+        B=entrada_numero("Base maior (B)")
+        b=entrada_numero("Base menor (b)")
+        d1=entrada_numero("Diagonal 1")
+        d2=entrada_numero("Diagonal 2")
+        if st.button("Calcular Caso 6"):
+            r,exp=trapezio_inverso(caso,B=B,b=b,d1=d1,d2=d2)
+            st.write(r); st.code(exp)
+# =========================================================
+# Paralelogramo Inverso – 6 casos
+# =========================================================
+
+def paralelogramo_inverso(caso, **kwargs):
+    # Caso 1 – Base + altura
+    if caso == 1:
+        b,h = kwargs["base"],kwargs["altura"]
+        if b<=0 or h<=0: return {"erro":"Valores inválidos"}, ""
+        A=b*h
+        P=2*(b+h)
+        exp=f"A=b·h={A:.4f}\nP=2(b+h)={P:.4f}"
+        return {"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    # Caso 2 – Dois lados + ângulo
+    if caso == 2:
+        a,b,ang = kwargs["a"],kwargs["b"],math.radians(kwargs["angulo"])
+        if a<=0 or b<=0 or ang<=0 or ang>=math.pi:
+            return {"erro":"Valores inválidos"}, ""
+        A=a*b*math.sin(ang)
+        h=A/b
+        d1=math.sqrt(a**2+b**2+2*a*b*math.cos(ang))
+        d2=math.sqrt(a**2+b**2-2*a*b*math.cos(ang))
+        P=2*(a+b)
+        exp=f"A=a·b·senθ={A:.4f}\nh=A/b={h:.4f}\nd1=√(a²+b²+2abcosθ)={d1:.4f}\nd2=√(a²+b²-2abcosθ)={d2:.4f}\nP=2(a+b)={P:.4f}"
+        return {"area":round(A,4),"altura":round(h,4),"d1":round(d1,4),"d2":round(d2,4),"perimetro":round(P,4)}, exp
+
+    # Caso 3 – Dois lados + diagonal
+    if caso == 3:
+        a,b,d=kwargs["a"],kwargs["b"],kwargs["diag"]
+        if a<=0 or b<=0 or d<=0: return {"erro":"Valores inválidos"}, ""
+        cos_t=(d**2 - a**2 - b**2)/(2*a*b)
+        if cos_t<-1 or cos_t>1: return {"erro":"Valores incompatíveis"}, ""
+        ang=math.degrees(math.acos(cos_t))
+        A=a*b*math.sin(math.acos(cos_t))
+        exp=f"cosθ=(d²-a²-b²)/(2ab)={cos_t:.4f} → θ={ang:.4f}°\nA=a·b·senθ={A:.4f}"
+        return {"angulo":round(ang,4),"area":round(A,4)}, exp
+
+    # Caso 4 – Área + lado
+    if caso == 4:
+        A,b=kwargs["area"],kwargs["lado"]
+        if A<=0 or b<=0: return {"erro":"Valores inválidos"}, ""
+        h=A/b
+        exp=f"h=A/b={h:.4f}"
+        return {"altura":round(h,4)}, exp
+
+    # Caso 5 – Área + dois lados
+    if caso == 5:
+        A,a,b=kwargs["area"],kwargs["a"],kwargs["b"]
+        if A<=0 or a<=0 or b<=0 or A>(a*b): return {"erro":"Valores inválidos"}, ""
+        sen_t=A/(a*b)
+        ang=math.degrees(math.asin(sen_t))
+        exp=f"senθ=A/(a·b)={sen_t:.4f} → θ={ang:.4f}°"
+        return {"angulo":round(ang,4)}, exp
+
+    # Caso 6 – Altura + lado
+    if caso == 6:
+        b,h=kwargs["base"],kwargs["altura"]
+        if b<=0 or h<=0: return {"erro":"Valores inválidos"}, ""
+        A=b*h
+        P=2*(b+h)
+        exp=f"A=b·h={A:.4f}\nP=2(b+h)={P:.4f}"
+        return {"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    return {"erro":"Caso não reconhecido"}, ""
+
+
+# =========================================================
+# Interface – Paralelogramo Inverso (6 casos)
+# =========================================================
+tab_par_inv = st.tabs(["⬛ Paralelogramo Inverso"])[0]
+
+casos_par = [
+    "1. Base + altura → área, perímetro",
+    "2. Dois lados + ângulo → área, altura, diagonais, perímetro",
+    "3. Dois lados + diagonal → ângulo, área",
+    "4. Área + lado → altura",
+    "5. Área + dois lados → ângulo",
+    "6. Altura + lado → área, perímetro"
+]
+
+with tab_par_inv:
+    st.header("⬛ Paralelogramo Inverso")
+    caso_txt = st.selectbox("Selecione o caso", casos_par)
+    caso = int(caso_txt.split(".")[0])
+
+    if caso == 1:
+        b=entrada_numero("Base")
+        h=entrada_numero("Altura")
+        if st.button("Calcular Caso 1"):
+            r,exp=paralelogramo_inverso(caso,base=b,altura=h)
+            st.write(r); st.code(exp)
+
+    if caso == 2:
+        a=entrada_numero("Lado a")
+        b=entrada_numero("Lado b")
+        ang=entrada_numero("Ângulo (graus)")
+        if st.button("Calcular Caso 2"):
+            r,exp=paralelogramo_inverso(caso,a=a,b=b,angulo=ang)
+            st.write(r); st.code(exp)
+
+    if caso == 3:
+        a=entrada_numero("Lado a")
+        b=entrada_numero("Lado b")
+        d=entrada_numero("Diagonal")
+        if st.button("Calcular Caso 3"):
+            r,exp=paralelogramo_inverso(caso,a=a,b=b,diag=d)
+            st.write(r); st.code(exp)
+
+    if caso == 4:
+        A=entrada_numero("Área")
+        b=entrada_numero("Lado")
+        if st.button("Calcular Caso 4"):
+            r,exp=paralelogramo_inverso(caso,area=A,lado=b)
+            st.write(r); st.code(exp)
+
+    if caso == 5:
+        A=entrada_numero("Área")
+        a=entrada_numero("Lado a")
+        b=entrada_numero("Lado b")
+        if st.button("Calcular Caso 5"):
+            r,exp=paralelogramo_inverso(caso,area=A,a=a,b=b)
+            st.write(r); st.code(exp)
+
+    if caso == 6:
+        b=entrada_numero("Base")
+        h=entrada_numero("Altura")
+        if st.button("Calcular Caso 6"):
+            r,exp=paralelogramo_inverso(caso,base=b,altura=h)
+            st.write(r); st.code(exp)
+# =========================================================
+# Círculo Inverso – 6 casos
+# =========================================================
+
+def circulo_inverso(caso, **kwargs):
+    # Caso 1 – Raio
+    if caso == 1:
+        r=kwargs["raio"]
+        if r<=0: return {"erro":"Raio inválido"}, ""
+        d=2*r
+        A=math.pi*r**2
+        P=2*math.pi*r
+        exp=f"d=2r={d:.4f}\nA=πr²={A:.4f}\nP=2πr={P:.4f}"
+        return {"diametro":round(d,4),"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    # Caso 2 – Diâmetro
+    if caso == 2:
+        d=kwargs["diametro"]
+        if d<=0: return {"erro":"Diâmetro inválido"}, ""
+        r=d/2
+        A=math.pi*r**2
+        P=2*math.pi*r
+        exp=f"r=d/2={r:.4f}\nA=πr²={A:.4f}\nP=2πr={P:.4f}"
+        return {"raio":round(r,4),"area":round(A,4),"perimetro":round(P,4)}, exp
+
+    # Caso 3 – Área
+    if caso == 3:
+        A=kwargs["area"]
+        if A<=0: return {"erro":"Área inválida"}, ""
+        r=math.sqrt(A/math.pi)
+        d=2*r
+        P=2*math.pi*r
+        exp=f"r=√(A/π)={r:.4f}\nd=2r={d:.4f}\nP=2πr={P:.4f}"
+        return {"raio":round(r,4),"diametro":round(d,4),"perimetro":round(P,4)}, exp
+
+    # Caso 4 – Perímetro
+    if caso == 4:
+        P=kwargs["perimetro"]
+        if P<=0: return {"erro":"Perímetro inválido"}, ""
+        r=P/(2*math.pi)
+        d=2*r
+        A=math.pi*r**2
+        exp=f"r=P/(2π)={r:.4f}\nd=2r={d:.4f}\nA=πr²={A:.4f}"
+        return {"raio":round(r,4),"diametro":round(d,4),"area":round(A,4)}, exp
+
+    # Caso 5 – Ângulo central + raio
+    if caso == 5:
+        ang,r=kwargs["angulo"],kwargs["raio"]
+        if r<=0 or ang<=0 or ang>360: return {"erro":"Valores inválidos"}, ""
+        A=(ang/360)*math.pi*r**2
+        C=(ang/360)*2*math.pi*r
+        exp=f"A_setor=(θ/360)πr²={A:.4f}\nC_arco=(θ/360)2πr={C:.4f}"
+        return {"area_setor":round(A,4),"comprimento_arco":round(C,4)}, exp
+
+    # Caso 6 – Arco + raio
+    if caso == 6:
+        C,r=kwargs["arco"],kwargs["raio"]
+        if C<=0 or r<=0: return {"erro":"Valores inválidos"}, ""
+        ang=(C/(2*math.pi*r))*360
+        A=(ang/360)*math.pi*r**2
+        exp=f"θ=(C/(2πr))·360={ang:.4f}°\nA_setor=(θ/360)πr²={A:.4f}"
+        return {"angulo":round(ang,4),"area_setor":round(A,4)}, exp
+
+    return {"erro":"Caso não reconhecido"}, ""
+
+
+# =========================================================
+# Interface – Círculo Inverso (6 casos)
+# =========================================================
+tab_circ_inv = st.tabs(["⚪ Círculo Inverso"])[0]
+
+casos_circ = [
+    "1. Raio → diâmetro, área, perímetro",
+    "2. Diâmetro → raio, área, perímetro",
+    "3. Área → raio, diâmetro, perímetro",
+    "4. Perímetro → raio, diâmetro, área",
+    "5. Ângulo central + raio → área do setor, comprimento do arco",
+    "6. Arco + raio → ângulo central, área do setor"
+]
+
+with tab_circ_inv:
+    st.header("⚪ Círculo Inverso")
+    caso_txt = st.selectbox("Selecione o caso", casos_circ)
+    caso = int(caso_txt.split(".")[0])
+
+    if caso == 1:
+        r=entrada_numero("Raio")
+        if st.button("Calcular Caso 1"):
+            r,exp=circulo_inverso(caso,raio=r)
+            st.write(r); st.code(exp)
+
+    if caso == 2:
+        d=entrada_numero("Diâmetro")
+        if st.button("Calcular Caso 2"):
+            r,exp=circulo_inverso(caso,diametro=d)
+            st.write(r); st.code(exp)
+
+    if caso == 3:
+        A=entrada_numero("Área")
+        if st.button("Calcular Caso 3"):
+            r,exp=circulo_inverso(caso,area=A)
+            st.write(r); st.code(exp)
+
+    if caso == 4:
+        P=entrada_numero("Perímetro (circunferência)")
+        if st.button("Calcular Caso 4"):
+            r,exp=circulo_inverso(caso,perimetro=P)
+            st.write(r); st.code(exp)
+
+    if caso == 5:
+        ang=entrada_numero("Ângulo central (graus)")
+        r=entrada_numero("Raio")
+        if st.button("Calcular Caso 5"):
+            r,exp=circulo_inverso(caso,angulo=ang,raio=r)
+            st.write(r); st.code(exp)
+
+    if caso == 6:
+        C=entrada_numero("Comprimento do arco")
+        r=entrada_numero("Raio")
+        if st.button("Calcular Caso 6"):
+            r,exp=circulo_inverso(caso,arco=C,raio=r)
+            st.write(r); st.code(exp)
+# =========================================================
+# Polígono Regular Inverso – 6 casos
+# =========================================================
+
+def poligono_inverso(caso, **kwargs):
+    n = kwargs.get("n")
+    if not n or n < 5 or n > 10:
+        return {"erro":"Número de lados deve estar entre 5 e 10"}, ""
+
+    # Caso 1 – lado + n
+    if caso == 1:
+        a=kwargs["lado"]
+        if a<=0: return {"erro":"Lado inválido"}, ""
+        P=n*a
+        r=a/(2*math.tan(math.pi/n))
+        A=(n*a**2)/(4*math.tan(math.pi/n))
+        R=a/(2*math.sin(math.pi/n))
+        exp=f"P=n·a={P:.4f}\nr=a/(2tan(π/n))={r:.4f}\nA=n·a²/(4tan(π/n))={A:.4f}\nR=a/(2sen(π/n))={R:.4f}"
+        return {"perimetro":round(P,4),"apotema":round(r,4),"area":round(A,4),"raio_circ":round(R,4)}, exp
+
+    # Caso 2 – apótema + n
+    if caso == 2:
+        r=kwargs["apotema"]
+        if r<=0: return {"erro":"Apótema inválido"}, ""
+        a=2*r*math.tan(math.pi/n)
+        P=n*a
+        A=(P*r)/2
+        R=a/(2*math.sin(math.pi/n))
+        exp=f"a=2r·tan(π/n)={a:.4f}\nP=n·a={P:.4f}\nA=P·r/2={A:.4f}\nR=a/(2sen(π/n))={R:.4f}"
+        return {"lado":round(a,4),"perimetro":round(P,4),"area":round(A,4),"raio_circ":round(R,4)}, exp
+
+    # Caso 3 – perímetro + n
+    if caso == 3:
+        P=kwargs["perimetro"]
+        if P<=0: return {"erro":"Perímetro inválido"}, ""
+        a=P/n
+        r=a/(2*math.tan(math.pi/n))
+        A=(P*r)/2
+        R=a/(2*math.sin(math.pi/n))
+        exp=f"a=P/n={a:.4f}\nr=a/(2tan(π/n))={r:.4f}\nA=P·r/2={A:.4f}\nR=a/(2sen(π/n))={R:.4f}"
+        return {"lado":round(a,4),"apotema":round(r,4),"area":round(A,4),"raio_circ":round(R,4)}, exp
+
+    # Caso 4 – área + n
+    if caso == 4:
+        A=kwargs["area"]
+        if A<=0: return {"erro":"Área inválida"}, ""
+        a=math.sqrt((4*A*math.tan(math.pi/n))/n)
+        P=n*a
+        r=a/(2*math.tan(math.pi/n))
+        R=a/(2*math.sin(math.pi/n))
+        exp=f"a=√(4A·tan(π/n)/n)={a:.4f}\nP=n·a={P:.4f}\nr=a/(2tan(π/n))={r:.4f}\nR=a/(2sen(π/n))={R:.4f}"
+        return {"lado":round(a,4),"perimetro":round(P,4),"apotema":round(r,4),"raio_circ":round(R,4)}, exp
+
+    # Caso 5 – raio circunscrito + n
+    if caso == 5:
+        R=kwargs["raio_circ"]
+        if R<=0: return {"erro":"Raio circunscrito inválido"}, ""
+        a=2*R*math.sin(math.pi/n)
+        r=R*math.cos(math.pi/n)
+        P=n*a
+        A=(P*r)/2
+        exp=f"a=2R·sen(π/n)={a:.4f}\nr=R·cos(π/n)={r:.4f}\nP=n·a={P:.4f}\nA=P·r/2={A:.4f}"
+        return {"lado":round(a,4),"apotema":round(r,4),"perimetro":round(P,4),"area":round(A,4)}, exp
+
+    # Caso 6 – raio inscrito (apótema) + n
+    if caso == 6:
+        r=kwargs["raio_insc"]
+        if r<=0: return {"erro":"Raio inscrito inválido"}, ""
+        a=2*r*math.tan(math.pi/n)
+        R=r/math.cos(math.pi/n)
+        P=n*a
+        A=(P*r)/2
+        exp=f"a=2r·tan(π/n)={a:.4f}\nR=r/cos(π/n)={R:.4f}\nP=n·a={P:.4f}\nA=P·r/2={A:.4f}"
+        return {"lado":round(a,4),"raio_circ":round(R,4),"perimetro":round(P,4),"area":round(A,4)}, exp
+
+    return {"erro":"Caso não reconhecido"}, ""
+
+
+# =========================================================
+# Interface – Polígono Regular Inverso (6 casos)
+# =========================================================
+tab_pol_inv = st.tabs(["🔷 Polígono Regular Inverso"])[0]
+
+casos_pol = [
+    "1. Lado + n → perímetro, apótema, área, raio circunscrito",
+    "2. Apótema + n → lado, perímetro, área, raio circunscrito",
+    "3. Perímetro + n → lado, apótema, área, raio circunscrito",
+    "4. Área + n → lado, perímetro, apótema, raio circunscrito",
+    "5. Raio circunscrito + n → lado, apótema, perímetro, área",
+    "6. Raio inscrito (apótema) + n → lado, raio circunscrito, perímetro, área"
+]
+
+with tab_pol_inv:
+    st.header("🔷 Polígono Regular Inverso (5 a 10 lados)")
+    caso_txt = st.selectbox("Selecione o caso", casos_pol)
+    caso = int(caso_txt.split(".")[0])
+    n = entrada_numero("Número de lados (5 a 10)",5)
+
+    if caso == 1:
+        a=entrada_numero("Lado")
+        if st.button("Calcular Caso 1"):
+            r,exp=poligono_inverso(caso,lado=a,n=n)
+            st.write(r); st.code(exp)
+
+    if caso == 2:
+        r=entrada_numero("Apótema")
+        if st.button("Calcular Caso 2"):
+            r,exp=poligono_inverso(caso,apotema=r,n=n)
+            st.write(r); st.code(exp)
+
+    if caso == 3:
+        P=entrada_numero("Perímetro")
+        if st.button("Calcular Caso 3"):
+            r,exp=poligono_inverso(caso,perimetro=P,n=n)
+            st.write(r); st.code(exp)
+
+    if caso == 4:
+        A=entrada_numero("Área")
+        if st.button("Calcular Caso 4"):
+            r,exp=poligono_inverso(caso,area=A,n=n)
+            st.write(r); st.code(exp)
+
+    if caso == 5:
+        R=entrada_numero("Raio circunscrito")
+        if st.button("Calcular Caso 5"):
+            r,exp=poligono_inverso(caso,raio_circ=R,n=n)
+            st.write(r); st.code(exp)
+
+    if caso == 6:
+        r=entrada_numero("Raio inscrito (apótema)")
+        if st.button("Calcular Caso 6"):
+            r,exp=poligono_inverso(caso,raio_insc=r,n=n)
             st.write(r); st.code(exp)
