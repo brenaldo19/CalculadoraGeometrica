@@ -2,6 +2,7 @@ from utils import entrada_numero
 import streamlit as st
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 st.set_page_config(page_title="Calculadora Geométrica", layout="wide")
 
@@ -310,14 +311,9 @@ with tab8:
             R_plot = R if R else lado
             plot_figura("polígono", n=n, R=R_plot)
 
-
 # =========================================================
-# Funções de cálculo – Parte 2
+# Funções de cálculo – Parte 2 (Tridimensionais)
 # =========================================================
-
-# -----------------------------
-# Cubo
-# -----------------------------
 def cubo(lado):
     if not lado or lado <= 0:
         return {"erro": "Forneça lado > 0"}
@@ -330,9 +326,6 @@ def cubo(lado):
         "raio_circunscrito": round((lado*math.sqrt(3))/2,4)
     }
 
-# -----------------------------
-# Paralelepípedo
-# -----------------------------
 def paralelepipedo(c, l, h):
     if c <= 0 or l <= 0 or h <= 0:
         return {"erro": "Todos os lados devem ser positivos"}
@@ -350,9 +343,6 @@ def paralelepipedo(c, l, h):
         resultado["classificação"] = "cubo (caso especial)"
     return resultado
 
-# -----------------------------
-# Prisma Regular
-# -----------------------------
 def prisma(n, lado, h):
     if n < 3:
         return {"erro": "Prisma precisa base com pelo menos 3 lados"}
@@ -373,9 +363,6 @@ def prisma(n, lado, h):
         "volume": round(volume,4)
     }
 
-# -----------------------------
-# Cilindro
-# -----------------------------
 def cilindro(r, h):
     if r <= 0 or h <= 0:
         return {"erro": "Raio e altura devem ser positivos"}
@@ -393,9 +380,6 @@ def cilindro(r, h):
         resultado["classificação"] = "cilindro equilátero (raio = altura)"
     return resultado
 
-# -----------------------------
-# Cone
-# -----------------------------
 def cone(r, h):
     if r <= 0 or h <= 0:
         return {"erro": "Raio e altura devem ser positivos"}
@@ -415,9 +399,6 @@ def cone(r, h):
         resultado["classificação"] = "cone equilátero (raio = altura)"
     return resultado
 
-# -----------------------------
-# Esfera
-# -----------------------------
 def esfera(r, h=None):
     if r <= 0:
         return {"erro": "Raio deve ser positivo"}
@@ -440,9 +421,6 @@ def esfera(r, h=None):
         }
     return resultado
 
-# -----------------------------
-# Pirâmide
-# -----------------------------
 def piramide(n, lado, h):
     if n < 3 or n > 6:
         return {"erro": "Pirâmide só aceita base de 3 a 6 lados"}
@@ -467,9 +445,65 @@ def piramide(n, lado, h):
         "volume": round(volume,4)
     }
 
+# =========================================================
+# Função de Plotagem 3D
+# =========================================================
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+def plot_figura_3d(tipo, **params):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    if tipo == "cubo":
+        lado = params.get("lado",1)
+        r = [0, lado]
+        # vértices
+        vertices = [
+            [(x,y,z) for x in r for y in r for z in r]
+        ]
+        for s, e in [
+            ([0,0,0],[0,0,1]),([0,0,0],[0,1,0]),([0,0,0],[1,0,0]),
+            ([1,1,1],[1,1,0]),([1,1,1],[1,0,1]),([1,1,1],[0,1,1]),
+            ([0,1,1],[0,1,0]),([0,1,1],[1,1,1]),([0,1,1],[0,0,1]),
+            ([1,0,1],[1,0,0]),([1,0,1],[1,1,1]),([1,0,1],[0,0,1]),
+            ([1,1,0],[0,1,0]),([1,1,0],[1,0,0]),([1,1,0],[1,1,1]),
+        ]:
+            ax.plot([s[0]*lado, e[0]*lado],[s[1]*lado,e[1]*lado],[s[2]*lado,e[2]*lado],color="b")
+
+    elif tipo == "esfera":
+        r = params.get("r",1)
+        u = np.linspace(0, 2*np.pi, 30)
+        v = np.linspace(0, np.pi, 30)
+        x = r*np.outer(np.cos(u), np.sin(v))
+        y = r*np.outer(np.sin(u), np.sin(v))
+        z = r*np.outer(np.ones_like(u), np.cos(v))
+        ax.plot_wireframe(x,y,z,color="r",alpha=0.6)
+
+    elif tipo == "cilindro":
+        r = params.get("r",1)
+        h = params.get("h",2)
+        z = np.linspace(0,h,30)
+        theta = np.linspace(0,2*np.pi,30)
+        theta,z = np.meshgrid(theta,z)
+        x = r*np.cos(theta)
+        y = r*np.sin(theta)
+        ax.plot_surface(x,y,z,alpha=0.3)
+
+    elif tipo == "cone":
+        r = params.get("r",1)
+        h = params.get("h",2)
+        theta = np.linspace(0,2*np.pi,30)
+        R = np.linspace(0,r,30)
+        T,R = np.meshgrid(theta,R)
+        X = R*np.cos(T)
+        Y = R*np.sin(T)
+        Z = (h/r)*(r-R)
+        ax.plot_surface(X,Y,Z,alpha=0.3)
+
+    st.pyplot(fig)
 
 # =========================================================
-# Interface Streamlit – Parte 2
+# Interface Streamlit – Parte 2 (com plots)
 # =========================================================
 tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs([
     "Cubo", "Paralelepípedo", "Prisma", "Cilindro", "Cone", "Esfera", "Pirâmide"
@@ -479,7 +513,10 @@ with tab8:
     st.header("⬛ Cubo")
     lado = entrada_numero("Lado", chave="cubo_lado")
     if st.button("Calcular Cubo"):
-        st.write(cubo(lado))
+        resultado = cubo(lado)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura_3d("cubo", lado=lado)
 
 with tab9:
     st.header("📦 Paralelepípedo")
@@ -487,7 +524,9 @@ with tab9:
     l = entrada_numero("Largura", chave="par_l")
     h = entrada_numero("Altura", chave="par_h")
     if st.button("Calcular Paralelepípedo"):
-        st.write(paralelepipedo(c, l, h))
+        resultado = paralelepipedo(c, l, h)
+        st.write(resultado)
+        # (plot básico seria como um cubo esticado, podemos adicionar depois)
 
 with tab10:
     st.header("🔺 Prisma Regular")
@@ -495,28 +534,39 @@ with tab10:
     lado = entrada_numero("Lado da base", chave="prisma_lado")
     h = entrada_numero("Altura", chave="prisma_alt")
     if st.button("Calcular Prisma"):
-        st.write(prisma(n, lado, h))
+        resultado = prisma(n, lado, h)
+        st.write(resultado)
+        # (plot pode vir depois)
 
 with tab11:
     st.header("🟠 Cilindro")
     r = entrada_numero("Raio", chave="cil_r")
     h = entrada_numero("Altura", chave="cil_h")
     if st.button("Calcular Cilindro"):
-        st.write(cilindro(r, h))
+        resultado = cilindro(r, h)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura_3d("cilindro", r=r, h=h)
 
 with tab12:
     st.header("🔻 Cone")
     r = entrada_numero("Raio", chave="cone_r")
     h = entrada_numero("Altura", chave="cone_h")
     if st.button("Calcular Cone"):
-        st.write(cone(r, h))
+        resultado = cone(r, h)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura_3d("cone", r=r, h=h)
 
 with tab13:
     st.header("⚪ Esfera")
     r = entrada_numero("Raio", chave="esf_r")
     h = entrada_numero("Altura da calota (opcional)", chave="esf_h")
     if st.button("Calcular Esfera"):
-        st.write(esfera(r, h if h else None))
+        resultado = esfera(r, h if h else None)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura_3d("esfera", r=r)
 
 with tab14:
     st.header("⛏️ Pirâmide Regular")
@@ -524,4 +574,6 @@ with tab14:
     lado = entrada_numero("Lado da base", chave="pir_lado")
     h = entrada_numero("Altura", chave="pir_h")
     if st.button("Calcular Pirâmide"):
-        st.write(piramide(n, lado, h))
+        resultado = piramide(n, lado, h)
+        st.write(resultado)
+        # (plot podemos implementar depois)
