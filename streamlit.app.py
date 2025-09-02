@@ -732,6 +732,49 @@ with tab14:
         if "erro" not in resultado: plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
 
 # =========================================================
+# Funções de Cálculo – 4D
+# =========================================================
+def tesseract(lado):
+    if not lado or lado <= 0:
+        return {"erro": "Forneça lado > 0"}, ""
+
+    hipervolume = lado**4
+    area_hipersuperficie = 8*lado**3
+    diagonal = lado*math.sqrt(4)
+
+    explicacao = f"""🔷 Tesseract (Hipercubo 4D)
+Hipervolume = lado⁴ = {lado}⁴ = {hipervolume}
+Área da hipersuperfície = 8*lado³ = 8*{lado}³ = {area_hipersuperficie}
+Diagonal 4D = lado*√4 = {lado}*2 = {diagonal}
+(Observação: o tesseract possui 16 vértices, 32 arestas, 24 quadrados e 8 cubos como células 3D.)
+"""
+
+    return {
+        "hipervolume": round(hipervolume,4),
+        "área_hipersuperfície": round(area_hipersuperficie,4),
+        "diagonal_4d": round(diagonal,4)
+    }, explicacao
+
+
+def hiperesfera(r):
+    if not r or r <= 0:
+        return {"erro": "Forneça raio > 0"}, ""
+
+    hipervolume = 0.5 * (math.pi**2) * (r**4)
+    area_hipersuperficie = 2 * (math.pi**2) * (r**3)
+
+    explicacao = f"""⚪ Hiperesfera (4D)
+Hipervolume = (1/2)*π²*r⁴ = 0.5*π²*{r}⁴ = {hipervolume:.4f}
+Área da hipersuperfície = 2*π²*r³ = 2*π²*{r}³ = {area_hipersuperficie:.4f}
+"""
+
+    return {
+        "hipervolume": round(hipervolume,4),
+        "área_hipersuperfície": round(area_hipersuperficie,4)
+    }, explicacao
+
+
+# =========================================================
 # Funções de Plotagem 4D (interativas com Plotly)
 # =========================================================
 def plot_figura_4d(tipo, **params):
@@ -805,14 +848,24 @@ tab15, tab16 = st.tabs(["Tesseract (Hipercubo 4D)", "Hiperesfera"])
 with tab15:
     st.header("🔷 Tesseract (Hipercubo 4D)")
     lado = entrada_numero("Lado", chave="tess_lado")
-    if st.button("Visualizar Tesseract"):
-        plot_figura_4d("tesseract", lado=lado)
+    if st.button("Calcular Tesseract"):
+        resultado, explicacao = tesseract(lado)
+        st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
+        if "erro" not in resultado:
+            plot_figura_4d("tesseract", lado=lado)
 
 with tab16:
-    st.header("⚪ Hiperesfera")
+    st.header("⚪ Hiperesfera (4D)")
     r = entrada_numero("Raio", chave="hiper_r")
-    if st.button("Visualizar Hiperesfera"):
-        plot_figura_4d("hiperesfera", r=r)
+    if st.button("Calcular Hiperesfera"):
+        resultado, explicacao = hiperesfera(r)
+        st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
+        if "erro" not in resultado:
+            plot_figura_4d("hiperesfera", r=r)
 
 
 # =========================================================
