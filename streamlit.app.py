@@ -1,6 +1,6 @@
+from utils import entrada_numero
 import streamlit as st
 import math
-from utils import entrada_numero   # importa função para permitir frações
 
 st.set_page_config(page_title="Calculadora Geométrica", layout="wide")
 
