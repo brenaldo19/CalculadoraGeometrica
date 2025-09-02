@@ -1008,6 +1008,8 @@ with tab19:
         if "erro" not in resultado:
             plot_figura_4d("hiperesfera", r=r)
 
+
+
 # =========================================================
 # Triângulo Inverso – todos os 20 casos
 # =========================================================
@@ -1171,211 +1173,7 @@ def triangulo_inverso(caso, **kwargs):
         return {"a":round(a_val,4),"b":round(b_val,4),"c":round(c_val,4)}, exp
 
     return {"erro":"Caso não reconhecido"}, ""
-# =========================================================
-# Interface – Triângulo Inverso (20 casos com nomes)
-# =========================================================
-tab_triang_inv = st.tabs(["🔺 Triângulo Inverso"])[0]
 
-casos_lista = [
-    "1. Dois lados + ângulo entre eles → 3º lado e área",
-    "2. Dois lados + ângulo oposto a um deles → outro ângulo",
-    "3. Área + dois lados → ângulo entre eles",
-    "4. Área + um lado + ângulo oposto → outro lado",
-    "5. Área + três ângulos → lados proporcionais",
-    "6. Um lado + dois ângulos → outros lados",
-    "7. Dois ângulos + área → lados escalados",
-    "8. Três ângulos + perímetro → lados",
-    "9. Um lado + altura relativa → área",
-    "10. Três alturas → triângulo definido",
-    "11. Um lado + bissetriz relativa + ângulos → outros lados",
-    "12. Um lado + mediatriz → circunrádio e lados",
-    "13. Raio inscrito + perímetro → área",
-    "14. Raio circunscrito + ângulos → lados",
-    "15. Área + raio inscrito → perímetro",
-    "16. Área + raio circunscrito → lados via trigonometria",
-    "17. Catetos → hipotenusa",
-    "18. Hipotenusa + cateto → outro cateto",
-    "19. Área + cateto → outro cateto",
-    "20. Perímetro + área → lados via sistema"
-]
-
-with tab_triang_inv:
-    st.header("🔺 Triângulo Inverso")
-    caso_txt = st.selectbox("Selecione o caso", casos_lista)
-    caso = int(caso_txt.split(".")[0])
-
-    # ---------------------------------------
-    # Grupo 1
-    # ---------------------------------------
-    if caso == 1:
-        a = entrada_numero("Lado a")
-        b = entrada_numero("Lado b")
-        angC = entrada_numero("Ângulo C (graus)")
-        if st.button("Calcular Caso 1"):
-            r,exp = triangulo_inverso(caso,a=a,b=b,angC=angC)
-            st.write(r); st.code(exp)
-
-    if caso == 2:
-        a = entrada_numero("Lado a")
-        b = entrada_numero("Lado b")
-        angA = entrada_numero("Ângulo A (graus)")
-        if st.button("Calcular Caso 2"):
-            r,exp = triangulo_inverso(caso,a=a,b=b,angA=angA)
-            st.write(r); st.code(exp)
-
-    # ---------------------------------------
-    # Grupo 2
-    # ---------------------------------------
-    if caso == 3:
-        a = entrada_numero("Lado a")
-        b = entrada_numero("Lado b")
-        area = entrada_numero("Área")
-        if st.button("Calcular Caso 3"):
-            r,exp = triangulo_inverso(caso,a=a,b=b,area=area)
-            st.write(r); st.code(exp)
-
-    if caso == 4:
-        a = entrada_numero("Lado a")
-        angB = entrada_numero("Ângulo B (graus)")
-        area = entrada_numero("Área")
-        if st.button("Calcular Caso 4"):
-            r,exp = triangulo_inverso(caso,a=a,angB=angB,area=area)
-            st.write(r); st.code(exp)
-
-    if caso == 5:
-        angA = entrada_numero("Ângulo A (graus)")
-        angB = entrada_numero("Ângulo B (graus)")
-        angC = entrada_numero("Ângulo C (graus)")
-        area = entrada_numero("Área")
-        if st.button("Calcular Caso 5"):
-            r,exp = triangulo_inverso(caso,area=area,angA=angA,angB=angB,angC=angC)
-            st.write(r); st.code(exp)
-
-    # ---------------------------------------
-    # Grupo 3
-    # ---------------------------------------
-    if caso == 6:
-        a = entrada_numero("Lado a")
-        angA = entrada_numero("Ângulo A (graus)")
-        angB = entrada_numero("Ângulo B (graus)")
-        if st.button("Calcular Caso 6"):
-            r,exp = triangulo_inverso(caso,a=a,angA=angA,angB=angB)
-            st.write(r); st.code(exp)
-
-    if caso == 7:
-        area = entrada_numero("Área")
-        angA = entrada_numero("Ângulo A (graus)")
-        angB = entrada_numero("Ângulo B (graus)")
-        if st.button("Calcular Caso 7"):
-            r,exp = triangulo_inverso(caso,area=area,angA=angA,angB=angB)
-            st.write(r); st.code(exp)
-
-    if caso == 8:
-        P = entrada_numero("Perímetro")
-        angA = entrada_numero("Ângulo A (graus)")
-        angB = entrada_numero("Ângulo B (graus)")
-        angC = entrada_numero("Ângulo C (graus)")
-        if st.button("Calcular Caso 8"):
-            r,exp = triangulo_inverso(caso,perimetro=P,angA=angA,angB=angB,angC=angC)
-            st.write(r); st.code(exp)
-
-    # ---------------------------------------
-    # Grupo 4
-    # ---------------------------------------
-    if caso == 9:
-        a = entrada_numero("Lado a")
-        h = entrada_numero("Altura relativa")
-        if st.button("Calcular Caso 9"):
-            r,exp = triangulo_inverso(caso,a=a,h=h)
-            st.write(r); st.code(exp)
-
-    if caso == 10:
-        ha = entrada_numero("Altura ha")
-        hb = entrada_numero("Altura hb")
-        hc = entrada_numero("Altura hc")
-        if st.button("Calcular Caso 10"):
-            r,exp = triangulo_inverso(caso,ha=ha,hb=hb,hc=hc)
-            st.write(r); st.code(exp)
-
-    if caso == 11:
-        a = entrada_numero("Lado a")
-        bissetriz = entrada_numero("Bissetriz")
-        angA = entrada_numero("Ângulo A (graus)")
-        angB = entrada_numero("Ângulo B (graus)")
-        if st.button("Calcular Caso 11"):
-            r,exp = triangulo_inverso(caso,a=a,bissetriz=bissetriz,angA=angA,angB=angB)
-            st.write(r); st.code(exp)
-
-    if caso == 12:
-        a = entrada_numero("Lado a")
-        mediatriz = entrada_numero("Mediatriz")
-        if st.button("Calcular Caso 12"):
-            r,exp = triangulo_inverso(caso,a=a,mediatriz=mediatriz)
-            st.write(r); st.code(exp)
-
-    # ---------------------------------------
-    # Grupo 5
-    # ---------------------------------------
-    if caso == 13:
-        r = entrada_numero("Raio inscrito r")
-        P = entrada_numero("Perímetro")
-        if st.button("Calcular Caso 13"):
-            r,exp = triangulo_inverso(caso,r=r,P=P)
-            st.write(r); st.code(exp)
-
-    if caso == 14:
-        R = entrada_numero("Raio circunscrito R")
-        angA = entrada_numero("Ângulo A (graus)")
-        angB = entrada_numero("Ângulo B (graus)")
-        angC = entrada_numero("Ângulo C (graus)")
-        if st.button("Calcular Caso 14"):
-            r,exp = triangulo_inverso(caso,R=R,angA=angA,angB=angB,angC=angC)
-            st.write(r); st.code(exp)
-
-    if caso == 15:
-        area = entrada_numero("Área")
-        r = entrada_numero("Raio inscrito r")
-        if st.button("Calcular Caso 15"):
-            r,exp = triangulo_inverso(caso,area=area,r=r)
-            st.write(r); st.code(exp)
-
-    if caso == 16:
-        area = entrada_numero("Área")
-        R = entrada_numero("Raio circunscrito R")
-        if st.button("Calcular Caso 16"):
-            r,exp = triangulo_inverso(caso,area=area,R=R)
-            st.write(r); st.code(exp)
-
-    # ---------------------------------------
-    # Grupo 6
-    # ---------------------------------------
-    if caso == 17:
-        cat1 = entrada_numero("Cateto 1")
-        cat2 = entrada_numero("Cateto 2")
-        if st.button("Calcular Caso 17"):
-            r,exp = triangulo_inverso(caso,cat1=cat1,cat2=cat2)
-            st.write(r); st.code(exp)
-
-    if caso == 18:
-        hip = entrada_numero("Hipotenusa")
-        cat = entrada_numero("Cateto")
-        if st.button("Calcular Caso 18"):
-            r,exp = triangulo_inverso(caso,hip=hip,cat=cat)
-            st.write(r); st.code(exp)
-
-    if caso == 19:
-        area = entrada_numero("Área")
-        cat = entrada_numero("Cateto")
-        if st.button("Calcular Caso 19"):
-            r,exp = triangulo_inverso(caso,area=area,cat=cat)
-            st.write(r); st.code(exp)
-
-    if caso == 20:
-        area = entrada_numero("Área")
-        P = entrada_numero("Perímetro")
-        if st.button("Calcular Caso 20"):
-            r,exp = triangulo_inverso(caso,area=area,perimetro=P)
-            st.write(r); st.code(exp)
 # =========================================================
 # Quadrado Inverso – 3 casos
 # =========================================================
@@ -1416,42 +1214,7 @@ def quadrado_inverso(caso, **kwargs):
 
     return {"erro":"Caso não reconhecido"}, ""
 
-# =========================================================
-# Interface – Quadrado Inverso (3 casos)
-# =========================================================
-tab_quad_inv = st.tabs(["⬜ Quadrado Inverso"])[0]
 
-casos_quad = [
-    "1. Área → lado, perímetro, diagonal",
-    "2. Perímetro → lado, área, diagonal",
-    "3. Diagonal → lado, área, perímetro"
-]
-
-with tab_quad_inv:
-    st.header("⬜ Quadrado Inverso")
-    caso_txt = st.selectbox("Selecione o caso", casos_quad)
-    caso = int(caso_txt.split(".")[0])
-
-    # Caso 1
-    if caso == 1:
-        A = entrada_numero("Área")
-        if st.button("Calcular Caso 1"):
-            r,exp = quadrado_inverso(caso, area=A)
-            st.write(r); st.code(exp)
-
-    # Caso 2
-    if caso == 2:
-        P = entrada_numero("Perímetro")
-        if st.button("Calcular Caso 2"):
-            r,exp = quadrado_inverso(caso, perimetro=P)
-            st.write(r); st.code(exp)
-
-    # Caso 3
-    if caso == 3:
-        d = entrada_numero("Diagonal")
-        if st.button("Calcular Caso 3"):
-            r,exp = quadrado_inverso(caso, diagonal=d)
-            st.write(r); st.code(exp)
 
 # =========================================================
 # Retângulo Inverso – 3 casos
@@ -1495,46 +1258,6 @@ def retangulo_inverso(caso, **kwargs):
 
     return {"erro":"Caso não reconhecido"}, ""
 
-
-# =========================================================
-# Interface – Retângulo Inverso (3 casos)
-# =========================================================
-tab_ret_inv = st.tabs(["▭ Retângulo Inverso"])[0]
-
-casos_ret = [
-    "1. Área + lado → outro lado, perímetro, diagonal",
-    "2. Perímetro + lado → outro lado, área, diagonal",
-    "3. Diagonal + lado → outro lado, área, perímetro"
-]
-
-with tab_ret_inv:
-    st.header("▭ Retângulo Inverso")
-    caso_txt = st.selectbox("Selecione o caso", casos_ret)
-    caso = int(caso_txt.split(".")[0])
-
-    # Caso 1
-    if caso == 1:
-        A = entrada_numero("Área")
-        b = entrada_numero("Lado conhecido (base ou altura)")
-        if st.button("Calcular Caso 1"):
-            r,exp = retangulo_inverso(caso, area=A, lado=b)
-            st.write(r); st.code(exp)
-
-    # Caso 2
-    if caso == 2:
-        P = entrada_numero("Perímetro")
-        b = entrada_numero("Lado conhecido (base ou altura)")
-        if st.button("Calcular Caso 2"):
-            r,exp = retangulo_inverso(caso, perimetro=P, lado=b)
-            st.write(r); st.code(exp)
-
-    # Caso 3
-    if caso == 3:
-        d = entrada_numero("Diagonal")
-        b = entrada_numero("Lado conhecido (base ou altura)")
-        if st.button("Calcular Caso 3"):
-            r,exp = retangulo_inverso(caso, diagonal=d, lado=b)
-            st.write(r); st.code(exp)
 
 
 # =========================================================
@@ -1602,59 +1325,6 @@ def losango_inverso(caso, **kwargs):
 
     return {"erro":"Caso não reconhecido"}, ""
 
-
-# =========================================================
-# Interface – Losango Inverso (5 casos)
-# =========================================================
-tab_los_inv = st.tabs(["♦️ Losango Inverso"])[0]
-
-casos_los = [
-    "1. Duas diagonais → área, lado, perímetro",
-    "2. Área + diagonal maior → diagonal menor, lado, perímetro",
-    "3. Área + diagonal menor → diagonal maior, lado, perímetro",
-    "4. Lado + ângulo → área, diagonais, perímetro",
-    "5. Área + lado → ângulo, diagonais, perímetro"
-]
-
-with tab_los_inv:
-    st.header("♦️ Losango Inverso")
-    caso_txt = st.selectbox("Selecione o caso", casos_los)
-    caso = int(caso_txt.split(".")[0])
-
-    if caso == 1:
-        D = entrada_numero("Diagonal maior (D)")
-        d = entrada_numero("Diagonal menor (d)")
-        if st.button("Calcular Caso 1"):
-            r,exp = losango_inverso(caso, D=D, d=d)
-            st.write(r); st.code(exp)
-
-    if caso == 2:
-        A = entrada_numero("Área")
-        D = entrada_numero("Diagonal maior (D)")
-        if st.button("Calcular Caso 2"):
-            r,exp = losango_inverso(caso, area=A, D=D)
-            st.write(r); st.code(exp)
-
-    if caso == 3:
-        A = entrada_numero("Área")
-        d = entrada_numero("Diagonal menor (d)")
-        if st.button("Calcular Caso 3"):
-            r,exp = losango_inverso(caso, area=A, d=d)
-            st.write(r); st.code(exp)
-
-    if caso == 4:
-        L = entrada_numero("Lado")
-        ang = entrada_numero("Ângulo interno (graus)")
-        if st.button("Calcular Caso 4"):
-            r,exp = losango_inverso(caso, lado=L, angulo=ang)
-            st.write(r); st.code(exp)
-
-    if caso == 5:
-        A = entrada_numero("Área")
-        L = entrada_numero("Lado")
-        if st.button("Calcular Caso 5"):
-            r,exp = losango_inverso(caso, area=A, lado=L)
-            st.write(r); st.code(exp)
 # =========================================================
 # Trapézio Inverso – 6 casos
 # =========================================================
@@ -1728,73 +1398,6 @@ def trapezio_inverso(caso, **kwargs):
 
 
 # =========================================================
-# Interface – Trapézio Inverso (6 casos)
-# =========================================================
-tab_trap_inv = st.tabs(["⏢ Trapézio Inverso"])[0]
-
-casos_trap = [
-    "1. Bases + altura → área, perímetro (isósceles)",
-    "2. Área + bases → altura",
-    "3. Bases + lados oblíquos → altura, área, perímetro",
-    "4. Bases + ângulo → altura, lados, área, perímetro",
-    "5. Área + altura + base maior → base menor",
-    "6. Bases + diagonais → altura, área"
-]
-
-with tab_trap_inv:
-    st.header("⏢ Trapézio Inverso")
-    caso_txt = st.selectbox("Selecione o caso", casos_trap)
-    caso = int(caso_txt.split(".")[0])
-
-    if caso == 1:
-        B=entrada_numero("Base maior (B)")
-        b=entrada_numero("Base menor (b)")
-        h=entrada_numero("Altura (h)")
-        if st.button("Calcular Caso 1"):
-            r,exp=trapezio_inverso(caso,B=B,b=b,h=h)
-            st.write(r); st.code(exp)
-
-    if caso == 2:
-        A=entrada_numero("Área")
-        B=entrada_numero("Base maior (B)")
-        b=entrada_numero("Base menor (b)")
-        if st.button("Calcular Caso 2"):
-            r,exp=trapezio_inverso(caso,area=A,B=B,b=b)
-            st.write(r); st.code(exp)
-
-    if caso == 3:
-        B=entrada_numero("Base maior (B)")
-        b=entrada_numero("Base menor (b)")
-        L=entrada_numero("Lado oblíquo (isósceles)")
-        if st.button("Calcular Caso 3"):
-            r,exp=trapezio_inverso(caso,B=B,b=b,lado=L)
-            st.write(r); st.code(exp)
-
-    if caso == 4:
-        B=entrada_numero("Base maior (B)")
-        b=entrada_numero("Base menor (b)")
-        ang=entrada_numero("Ângulo com a base maior (graus)")
-        if st.button("Calcular Caso 4"):
-            r,exp=trapezio_inverso(caso,B=B,b=b,angulo=ang)
-            st.write(r); st.code(exp)
-
-    if caso == 5:
-        A=entrada_numero("Área")
-        h=entrada_numero("Altura (h)")
-        B=entrada_numero("Base maior (B)")
-        if st.button("Calcular Caso 5"):
-            r,exp=trapezio_inverso(caso,area=A,h=h,B=B)
-            st.write(r); st.code(exp)
-
-    if caso == 6:
-        B=entrada_numero("Base maior (B)")
-        b=entrada_numero("Base menor (b)")
-        d1=entrada_numero("Diagonal 1")
-        d2=entrada_numero("Diagonal 2")
-        if st.button("Calcular Caso 6"):
-            r,exp=trapezio_inverso(caso,B=B,b=b,d1=d1,d2=d2)
-            st.write(r); st.code(exp)
-# =========================================================
 # Paralelogramo Inverso – 6 casos
 # =========================================================
 
@@ -1861,69 +1464,7 @@ def paralelogramo_inverso(caso, **kwargs):
     return {"erro":"Caso não reconhecido"}, ""
 
 
-# =========================================================
-# Interface – Paralelogramo Inverso (6 casos)
-# =========================================================
-tab_par_inv = st.tabs(["⬛ Paralelogramo Inverso"])[0]
 
-casos_par = [
-    "1. Base + altura → área, perímetro",
-    "2. Dois lados + ângulo → área, altura, diagonais, perímetro",
-    "3. Dois lados + diagonal → ângulo, área",
-    "4. Área + lado → altura",
-    "5. Área + dois lados → ângulo",
-    "6. Altura + lado → área, perímetro"
-]
-
-with tab_par_inv:
-    st.header("⬛ Paralelogramo Inverso")
-    caso_txt = st.selectbox("Selecione o caso", casos_par)
-    caso = int(caso_txt.split(".")[0])
-
-    if caso == 1:
-        b=entrada_numero("Base")
-        h=entrada_numero("Altura")
-        if st.button("Calcular Caso 1"):
-            r,exp=paralelogramo_inverso(caso,base=b,altura=h)
-            st.write(r); st.code(exp)
-
-    if caso == 2:
-        a=entrada_numero("Lado a")
-        b=entrada_numero("Lado b")
-        ang=entrada_numero("Ângulo (graus)")
-        if st.button("Calcular Caso 2"):
-            r,exp=paralelogramo_inverso(caso,a=a,b=b,angulo=ang)
-            st.write(r); st.code(exp)
-
-    if caso == 3:
-        a=entrada_numero("Lado a")
-        b=entrada_numero("Lado b")
-        d=entrada_numero("Diagonal")
-        if st.button("Calcular Caso 3"):
-            r,exp=paralelogramo_inverso(caso,a=a,b=b,diag=d)
-            st.write(r); st.code(exp)
-
-    if caso == 4:
-        A=entrada_numero("Área")
-        b=entrada_numero("Lado")
-        if st.button("Calcular Caso 4"):
-            r,exp=paralelogramo_inverso(caso,area=A,lado=b)
-            st.write(r); st.code(exp)
-
-    if caso == 5:
-        A=entrada_numero("Área")
-        a=entrada_numero("Lado a")
-        b=entrada_numero("Lado b")
-        if st.button("Calcular Caso 5"):
-            r,exp=paralelogramo_inverso(caso,area=A,a=a,b=b)
-            st.write(r); st.code(exp)
-
-    if caso == 6:
-        b=entrada_numero("Base")
-        h=entrada_numero("Altura")
-        if st.button("Calcular Caso 6"):
-            r,exp=paralelogramo_inverso(caso,base=b,altura=h)
-            st.write(r); st.code(exp)
 # =========================================================
 # Círculo Inverso – 6 casos
 # =========================================================
@@ -1990,62 +1531,6 @@ def circulo_inverso(caso, **kwargs):
     return {"erro":"Caso não reconhecido"}, ""
 
 
-# =========================================================
-# Interface – Círculo Inverso (6 casos)
-# =========================================================
-tab_circ_inv = st.tabs(["⚪ Círculo Inverso"])[0]
-
-casos_circ = [
-    "1. Raio → diâmetro, área, perímetro",
-    "2. Diâmetro → raio, área, perímetro",
-    "3. Área → raio, diâmetro, perímetro",
-    "4. Perímetro → raio, diâmetro, área",
-    "5. Ângulo central + raio → área do setor, comprimento do arco",
-    "6. Arco + raio → ângulo central, área do setor"
-]
-
-with tab_circ_inv:
-    st.header("⚪ Círculo Inverso")
-    caso_txt = st.selectbox("Selecione o caso", casos_circ)
-    caso = int(caso_txt.split(".")[0])
-
-    if caso == 1:
-        r=entrada_numero("Raio")
-        if st.button("Calcular Caso 1"):
-            r,exp=circulo_inverso(caso,raio=r)
-            st.write(r); st.code(exp)
-
-    if caso == 2:
-        d=entrada_numero("Diâmetro")
-        if st.button("Calcular Caso 2"):
-            r,exp=circulo_inverso(caso,diametro=d)
-            st.write(r); st.code(exp)
-
-    if caso == 3:
-        A=entrada_numero("Área")
-        if st.button("Calcular Caso 3"):
-            r,exp=circulo_inverso(caso,area=A)
-            st.write(r); st.code(exp)
-
-    if caso == 4:
-        P=entrada_numero("Perímetro (circunferência)")
-        if st.button("Calcular Caso 4"):
-            r,exp=circulo_inverso(caso,perimetro=P)
-            st.write(r); st.code(exp)
-
-    if caso == 5:
-        ang=entrada_numero("Ângulo central (graus)")
-        r=entrada_numero("Raio")
-        if st.button("Calcular Caso 5"):
-            r,exp=circulo_inverso(caso,angulo=ang,raio=r)
-            st.write(r); st.code(exp)
-
-    if caso == 6:
-        C=entrada_numero("Comprimento do arco")
-        r=entrada_numero("Raio")
-        if st.button("Calcular Caso 6"):
-            r,exp=circulo_inverso(caso,arco=C,raio=r)
-            st.write(r); st.code(exp)
 # =========================================================
 # Polígono Regular Inverso – 6 casos
 # =========================================================
@@ -2125,57 +1610,246 @@ def poligono_inverso(caso, **kwargs):
 
 
 # =========================================================
-# Interface – Polígono Regular Inverso (6 casos)
+# INTERFACE ÚNICA COM TABS
 # =========================================================
-tab_pol_inv = st.tabs(["🔷 Polígono Regular Inverso"])[0]
+tabs = st.tabs([
+    "🔺 Triângulo Inverso",
+    "⬜ Quadrado Inverso",
+    "▭ Retângulo Inverso",
+    "♦️ Losango Inverso",
+    "⏢ Trapézio Inverso",
+    "⬛ Paralelogramo Inverso",
+    "⚪ Círculo Inverso",
+    "🔷 Polígono Regular Inverso"
+])
 
-casos_pol = [
-    "1. Lado + n → perímetro, apótema, área, raio circunscrito",
-    "2. Apótema + n → lado, perímetro, área, raio circunscrito",
-    "3. Perímetro + n → lado, apótema, área, raio circunscrito",
-    "4. Área + n → lado, perímetro, apótema, raio circunscrito",
-    "5. Raio circunscrito + n → lado, apótema, perímetro, área",
-    "6. Raio inscrito (apótema) + n → lado, raio circunscrito, perímetro, área"
-]
-
-with tab_pol_inv:
-    st.header("🔷 Polígono Regular Inverso (5 a 10 lados)")
-    caso_txt = st.selectbox("Selecione o caso", casos_pol)
+# =========================================================
+# 🔺 TRIÂNGULO INVERSO
+# =========================================================
+with tabs[0]:
+    st.header("🔺 Triângulo Inverso")
+    casos_lista = [
+        "1. Dois lados + ângulo entre eles → 3º lado e área",
+        "2. Dois lados + ângulo oposto a um deles → outro ângulo",
+        "3. Área + dois lados → ângulo entre eles",
+        "4. Área + um lado + ângulo oposto → outro lado",
+        "5. Área + três ângulos → lados proporcionais",
+        "6. Um lado + dois ângulos → outros lados",
+        "7. Dois ângulos + área → lados escalados",
+        "8. Três ângulos + perímetro → lados",
+        "9. Um lado + altura relativa → área",
+        "10. Três alturas → triângulo definido",
+        "11. Um lado + bissetriz relativa + ângulos → outros lados",
+        "12. Um lado + mediatriz → circunrádio e lados",
+        "13. Raio inscrito + perímetro → área",
+        "14. Raio circunscrito + ângulos → lados",
+        "15. Área + raio inscrito → perímetro",
+        "16. Área + raio circunscrito → lados via trigonometria",
+        "17. Catetos → hipotenusa",
+        "18. Hipotenusa + cateto → outro cateto",
+        "19. Área + cateto → outro cateto",
+        "20. Perímetro + área → lados via sistema"
+    ]
+    caso_txt = st.selectbox("Selecione o caso", casos_lista, key="tri_select")
     caso = int(caso_txt.split(".")[0])
-    n = entrada_numero("Número de lados (5 a 10)",5)
+
+    # Triângulo – gera todos os 20 casos
+    if caso == 1:
+        a=entrada_numero("Lado a"); b=entrada_numero("Lado b"); angC=entrada_numero("Ângulo C (graus)")
+        if st.button("Calcular Caso 1", key="tri_c1"):
+            r,exp=triangulo_inverso(caso,a=a,b=b,angC=angC); st.write(r); st.code(exp)
+    if caso == 2:
+        a=entrada_numero("Lado a"); b=entrada_numero("Lado b"); angA=entrada_numero("Ângulo A (graus)")
+        if st.button("Calcular Caso 2", key="tri_c2"):
+            r,exp=triangulo_inverso(caso,a=a,b=b,angA=angA); st.write(r); st.code(exp)
+    if caso == 3:
+        a=entrada_numero("Lado a"); b=entrada_numero("Lado b"); area=entrada_numero("Área")
+        if st.button("Calcular Caso 3", key="tri_c3"):
+            r,exp=triangulo_inverso(caso,a=a,b=b,area=area); st.write(r); st.code(exp)
+    if caso == 4:
+        a=entrada_numero("Lado a"); angB=entrada_numero("Ângulo B (graus)"); area=entrada_numero("Área")
+        if st.button("Calcular Caso 4", key="tri_c4"):
+            r,exp=triangulo_inverso(caso,a=a,angB=angB,area=area); st.write(r); st.code(exp)
+    if caso == 5:
+        angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B"); angC=entrada_numero("Ângulo C"); area=entrada_numero("Área")
+        if st.button("Calcular Caso 5", key="tri_c5"):
+            r,exp=triangulo_inverso(caso,area=area,angA=angA,angB=angB,angC=angC); st.write(r); st.code(exp)
+    if caso == 6:
+        a=entrada_numero("Lado a"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B")
+        if st.button("Calcular Caso 6", key="tri_c6"):
+            r,exp=triangulo_inverso(caso,a=a,angA=angA,angB=angB); st.write(r); st.code(exp)
+    if caso == 7:
+        area=entrada_numero("Área"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B")
+        if st.button("Calcular Caso 7", key="tri_c7"):
+            r,exp=triangulo_inverso(caso,area=area,angA=angA,angB=angB); st.write(r); st.code(exp)
+    if caso == 8:
+        P=entrada_numero("Perímetro"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B"); angC=entrada_numero("Ângulo C")
+        if st.button("Calcular Caso 8", key="tri_c8"):
+            r,exp=triangulo_inverso(caso,perimetro=P,angA=angA,angB=angB,angC=angC); st.write(r); st.code(exp)
+    if caso == 9:
+        a=entrada_numero("Lado a"); h=entrada_numero("Altura")
+        if st.button("Calcular Caso 9", key="tri_c9"):
+            r,exp=triangulo_inverso(caso,a=a,h=h); st.write(r); st.code(exp)
+    if caso == 10:
+        ha=entrada_numero("Altura ha"); hb=entrada_numero("Altura hb"); hc=entrada_numero("Altura hc")
+        if st.button("Calcular Caso 10", key="tri_c10"):
+            r,exp=triangulo_inverso(caso,ha=ha,hb=hb,hc=hc); st.write(r); st.code(exp)
+    if caso == 11:
+        a=entrada_numero("Lado a"); bis=entrada_numero("Bissetriz"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B")
+        if st.button("Calcular Caso 11", key="tri_c11"):
+            r,exp=triangulo_inverso(caso,a=a,bissetriz=bis,angA=angA,angB=angB); st.write(r); st.code(exp)
+    if caso == 12:
+        a=entrada_numero("Lado a"); med=entrada_numero("Mediatriz")
+        if st.button("Calcular Caso 12", key="tri_c12"):
+            r,exp=triangulo_inverso(caso,a=a,mediatriz=med); st.write(r); st.code(exp)
+    if caso == 13:
+        r_=entrada_numero("Raio inscrito"); P=entrada_numero("Perímetro")
+        if st.button("Calcular Caso 13", key="tri_c13"):
+            r,exp=triangulo_inverso(caso,r=r_,P=P); st.write(r); st.code(exp)
+    if caso == 14:
+        R=entrada_numero("Raio circunscrito"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B"); angC=entrada_numero("Ângulo C")
+        if st.button("Calcular Caso 14", key="tri_c14"):
+            r,exp=triangulo_inverso(caso,R=R,angA=angA,angB=angB,angC=angC); st.write(r); st.code(exp)
+    if caso == 15:
+        area=entrada_numero("Área"); r_=entrada_numero("Raio inscrito")
+        if st.button("Calcular Caso 15", key="tri_c15"):
+            r,exp=triangulo_inverso(caso,area=area,r=r_); st.write(r); st.code(exp)
+    if caso == 16:
+        area=entrada_numero("Área"); R=entrada_numero("Raio circunscrito")
+        if st.button("Calcular Caso 16", key="tri_c16"):
+            r,exp=triangulo_inverso(caso,area=area,R=R); st.write(r); st.code(exp)
+    if caso == 17:
+        c1=entrada_numero("Cateto 1"); c2=entrada_numero("Cateto 2")
+        if st.button("Calcular Caso 17", key="tri_c17"):
+            r,exp=triangulo_inverso(caso,cat1=c1,cat2=c2); st.write(r); st.code(exp)
+    if caso == 18:
+        hip=entrada_numero("Hipotenusa"); cat=entrada_numero("Cateto")
+        if st.button("Calcular Caso 18", key="tri_c18"):
+            r,exp=triangulo_inverso(caso,hip=hip,cat=cat); st.write(r); st.code(exp)
+    if caso == 19:
+        area=entrada_numero("Área"); cat=entrada_numero("Cateto")
+        if st.button("Calcular Caso 19", key="tri_c19"):
+            r,exp=triangulo_inverso(caso,area=area,cat=cat); st.write(r); st.code(exp)
+    if caso == 20:
+        area=entrada_numero("Área"); P=entrada_numero("Perímetro")
+        if st.button("Calcular Caso 20", key="tri_c20"):
+            r,exp=triangulo_inverso(caso,area=area,perimetro=P); st.write(r); st.code(exp)
+
+# =========================================================
+# ⬜ Quadrado Inverso
+# =========================================================
+with tabs[1]:
+    st.header("⬜ Quadrado Inverso")
+    casos_quad = [
+        "1. Área → lado, perímetro, diagonal",
+        "2. Perímetro → lado, área, diagonal",
+        "3. Diagonal → lado, área, perímetro"
+    ]
+    caso_txt = st.selectbox("Selecione o caso", casos_quad, key="quad_select")
+    caso = int(caso_txt.split(".")[0])
 
     if caso == 1:
-        a=entrada_numero("Lado")
-        if st.button("Calcular Caso 1"):
-            r,exp=poligono_inverso(caso,lado=a,n=n)
-            st.write(r); st.code(exp)
-
-    if caso == 2:
-        r=entrada_numero("Apótema")
-        if st.button("Calcular Caso 2"):
-            r,exp=poligono_inverso(caso,apotema=r,n=n)
-            st.write(r); st.code(exp)
-
-    if caso == 3:
-        P=entrada_numero("Perímetro")
-        if st.button("Calcular Caso 3"):
-            r,exp=poligono_inverso(caso,perimetro=P,n=n)
-            st.write(r); st.code(exp)
-
-    if caso == 4:
         A=entrada_numero("Área")
-        if st.button("Calcular Caso 4"):
-            r,exp=poligono_inverso(caso,area=A,n=n)
-            st.write(r); st.code(exp)
+        if st.button("Calcular Caso 1", key="quad_c1"):
+            r,exp=quadrado_inverso(caso,area=A); st.write(r); st.code(exp)
+    if caso == 2:
+        P=entrada_numero("Perímetro")
+        if st.button("Calcular Caso 2", key="quad_c2"):
+            r,exp=quadrado_inverso(caso,perimetro=P); st.write(r); st.code(exp)
+    if caso == 3:
+        d=entrada_numero("Diagonal")
+        if st.button("Calcular Caso 3", key="quad_c3"):
+            r,exp=quadrado_inverso(caso,diagonal=d); st.write(r); st.code(exp)
 
+# =========================================================
+# ▭ Retângulo Inverso
+# =========================================================
+with tabs[2]:
+    st.header("▭ Retângulo Inverso")
+    casos_ret = [
+        "1. Área + lado → outro lado, perímetro, diagonal",
+        "2. Perímetro + lado → outro lado, área, diagonal",
+        "3. Diagonal + lado → outro lado, área, perímetro"
+    ]
+    caso_txt = st.selectbox("Selecione o caso", casos_ret, key="ret_select")
+    caso = int(caso_txt.split(".")[0])
+
+    if caso == 1:
+        A=entrada_numero("Área"); b=entrada_numero("Lado conhecido")
+        if st.button("Calcular Caso 1", key="ret_c1"):
+            r,exp=retangulo_inverso(caso,area=A,lado=b); st.write(r); st.code(exp)
+    if caso == 2:
+        P=entrada_numero("Perímetro"); b=entrada_numero("Lado conhecido")
+        if st.button("Calcular Caso 2", key="ret_c2"):
+            r,exp=retangulo_inverso(caso,perimetro=P,lado=b); st.write(r); st.code(exp)
+    if caso == 3:
+        d=entrada_numero("Diagonal"); b=entrada_numero("Lado conhecido")
+        if st.button("Calcular Caso 3", key="ret_c3"):
+            r,exp=retangulo_inverso(caso,diagonal=d,lado=b); st.write(r); st.code(exp)
+
+# =========================================================
+# ♦️ Losango Inverso
+# =========================================================
+with tabs[3]:
+    st.header("♦️ Losango Inverso")
+    casos_los = [
+        "1. Duas diagonais → área, lado, perímetro",
+        "2. Área + diagonal maior → diagonal menor, lado, perímetro",
+        "3. Área + diagonal menor → diagonal maior, lado, perímetro",
+        "4. Lado + ângulo → área, diagonais, perímetro",
+        "5. Área + lado → ângulo, diagonais, perímetro"
+    ]
+    caso_txt = st.selectbox("Selecione o caso", casos_los, key="los_select")
+    caso = int(caso_txt.split(".")[0])
+
+    if caso == 1:
+        D=entrada_numero("Diagonal maior"); d=entrada_numero("Diagonal menor")
+        if st.button("Calcular Caso 1", key="los_c1"):
+            r,exp=losango_inverso(caso,D=D,d=d); st.write(r); st.code(exp)
+    if caso == 2:
+        A=entrada_numero("Área"); D=entrada_numero("Diagonal maior")
+        if st.button("Calcular Caso 2", key="los_c2"):
+            r,exp=losango_inverso(caso,area=A,D=D); st.write(r); st.code(exp)
+    if caso == 3:
+        A=entrada_numero("Área"); d=entrada_numero("Diagonal menor")
+        if st.button("Calcular Caso 3", key="los_c3"):
+            r,exp=losango_inverso(caso,area=A,d=d); st.write(r); st.code(exp)
+    if caso == 4:
+        L=entrada_numero("Lado"); ang=entrada_numero("Ângulo (graus)")
+        if st.button("Calcular Caso 4", key="los_c4"):
+            r,exp=losango_inverso(caso,lado=L,angulo=ang); st.write(r); st.code(exp)
     if caso == 5:
-        R=entrada_numero("Raio circunscrito")
-        if st.button("Calcular Caso 5"):
-            r,exp=poligono_inverso(caso,raio_circ=R,n=n)
-            st.write(r); st.code(exp)
+        A=entrada_numero("Área"); L=entrada_numero("Lado")
+        if st.button("Calcular Caso 5", key="los_c5"):
+            r,exp=losango_inverso(caso,area=A,lado=L); st.write(r); st.code(exp)
 
-    if caso == 6:
-        r=entrada_numero("Raio inscrito (apótema)")
-        if st.button("Calcular Caso 6"):
-            r,exp=poligono_inverso(caso,raio_insc=r,n=n)
-            st.write(r); st.code(exp)
+# =========================================================
+# ⏢ Trapézio Inverso
+# =========================================================
+with tabs[4]:
+    st.header("⏢ Trapézio Inverso")
+    casos_trap = [
+        "1. Bases + altura → área, perímetro (isósceles)",
+        "2. Área + bases → altura",
+        "3. Bases + lados oblíquos → altura, área, perímetro",
+        "4. Bases + ângulo → altura, lados, área, perímetro",
+        "5. Área + altura + base maior → base menor",
+        "6. Bases + diagonais → altura, área"
+    ]
+    caso_txt = st.selectbox("Selecione o caso", casos_trap, key="trap_select")
+    caso = int(caso_txt.split(".")[0])
+
+    if caso == 1:
+        B=entrada_numero("Base maior"); b=entrada_numero("Base menor"); h=entrada_numero("Altura")
+        if st.button("Calcular Caso 1", key="trap_c1"):
+            r,exp=trapezio_inverso(caso,B=B,b=b,h=h); st.write(r); st.code(exp)
+    if caso == 2:
+        A=entrada_numero("Área"); B=entrada_numero("Base maior"); b=entrada_numero("Base menor")
+        if st.button("Calcular Caso 2", key="trap_c2"):
+            r,exp=trapezio_inverso(caso,area=A,B=B,b=b); st.write(r); st.code(exp)
+    if caso == 3:
+        B=entrada_numero("Base maior"); b=entrada_numero("Base menor"); L=entrada_numero("Lado oblíquo")
+        if st.button("Calcular Caso 3", key="trap_c3"):
+            r,exp=trapezio_inverso(caso,B=B,b=b,lado=L); st.write(r); st.code(exp)
+    if caso == 4:
+        B=entrada
