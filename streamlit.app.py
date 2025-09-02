@@ -1143,11 +1143,12 @@ def triangulo_inverso(caso, **kwargs):
         a,b=sp.symbols('a b', positive=True)
         eqs=[
             sp.Eq(a*b/2, A),
-            sp.Eq(a+b+math.sqrt(a**2+b**2), P)
-        ]
-        sol=sp.nsolve(eqs,[a,b],[3,4])
-        a_val,b_val=float(sol[0]),float(sol[1])
-        c_val=math.sqrt(a_val**2+b_val**2)
+            sp.Eq(a+b+sp.sqrt(a**2+b**2), P)  # usar sp.sqrt
+]
+        sol=sp.nsolve(eqs, [a,b], [3,4])  # chute inicial
+        a_val=float(sol[0]); b_val=float(sol[1])
+        c_val=math.sqrt(a_val**2+b_val**2)  # aqui pode ser math.sqrt pq já virou float
+
         exp=f"Solução numérica: a={a_val:.4f}, b={b_val:.4f}, c={c_val:.4f}"
         return {"a":round(a_val,4),"b":round(b_val,4),"c":round(c_val,4)}, exp
 
