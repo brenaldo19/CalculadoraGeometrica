@@ -361,46 +361,81 @@ with tab8:
 # =========================================================
 # Funções de cálculo – Parte 2 (Tridimensionais)
 # =========================================================
+# =========================================================
+# Funções de cálculo – Tridimensionais
+# =========================================================
+
 def cubo(lado):
     if not lado or lado <= 0:
-        return {"erro": "Forneça lado > 0"}
+        return {"erro": "Forneça lado > 0"}, ""
+
+    volume = lado**3
+    area = 6*lado**2
+    diag_face = lado*math.sqrt(2)
+    diag_cubo = lado*math.sqrt(3)
+    r_in = lado/2
+    r_out = (lado*math.sqrt(3))/2
+
+    explicacao = f"""⬛ Cubo
+Volume = lado³ = {lado}³ = {volume}
+Área superficial = 6*lado² = 6*{lado}² = {area}
+Diagonal da face = lado*√2 = {diag_face:.4f}
+Diagonal do cubo = lado*√3 = {diag_cubo:.4f}
+Raio inscrito = lado/2 = {r_in:.4f}
+Raio circunscrito = (lado*√3)/2 = {r_out:.4f}
+"""
+
     return {
-        "volume": round(lado**3,4),
-        "área_superfície": round(6*lado**2,4),
-        "diagonal_face": round(lado*math.sqrt(2),4),
-        "diagonal_cubo": round(lado*math.sqrt(3),4),
-        "raio_inscrito": round(lado/2,4),
-        "raio_circunscrito": round((lado*math.sqrt(3))/2,4)
-    }
+        "volume": round(volume,4),
+        "área_superfície": round(area,4),
+        "diagonal_face": round(diag_face,4),
+        "diagonal_cubo": round(diag_cubo,4),
+        "raio_inscrito": round(r_in,4),
+        "raio_circunscrito": round(r_out,4)
+    }, explicacao
 
 def paralelepipedo(c, l, h):
     if c <= 0 or l <= 0 or h <= 0:
-        return {"erro": "Todos os lados devem ser positivos"}
-    resultado = {
-        "volume": round(c*l*h,4),
-        "área_superfície": round(2*(c*l + c*h + l*h),4),
-        "diagonal_espacial": round(math.sqrt(c**2 + l**2 + h**2),4),
-        "diagonais_faces": {
-            "cl": round(math.sqrt(c**2 + l**2),4),
-            "ch": round(math.sqrt(c**2 + h**2),4),
-            "lh": round(math.sqrt(l**2 + h**2),4),
-        }
-    }
-    if abs(c-l)<1e-6 and abs(l-h)<1e-6:
-        resultado["classificação"] = "cubo (caso especial)"
-    return resultado
+        return {"erro": "Todos os lados devem ser positivos"}, ""
+
+    volume = c*l*h
+    area = 2*(c*l + c*h + l*h)
+    diag = math.sqrt(c**2 + l**2 + h**2)
+
+    explicacao = f"""📦 Paralelepípedo
+Volume = c*l*h = {c}*{l}*{h} = {volume}
+Área superficial = 2*(cl+ch+lh) = 2*({c}*{l}+{c}*{h}+{l}*{h}) = {area}
+Diagonal espacial = √(c²+l²+h²) = √({c}²+{l}²+{h}²) = {diag:.4f}
+"""
+
+    return {
+        "volume": round(volume,4),
+        "área_superfície": round(area,4),
+        "diagonal_espacial": round(diag,4)
+    }, explicacao
 
 def prisma(n, lado, h):
     if n < 3:
-        return {"erro": "Prisma precisa base com pelo menos 3 lados"}
+        return {"erro": "Prisma precisa base com pelo menos 3 lados"}, ""
     if lado <= 0 or h <= 0:
-        return {"erro": "Lado e altura devem ser positivos"}
+        return {"erro": "Lado e altura devem ser positivos"}, ""
+
     perimetro = n*lado
     apotema = lado/(2*math.tan(math.pi/n))
     area_base = (perimetro*apotema)/2
     area_lateral = perimetro*h
     area_total = 2*area_base + area_lateral
     volume = area_base*h
+
+    explicacao = f"""🔺 Prisma Regular {n} lados
+Perímetro base = n*lado = {n}*{lado} = {perimetro}
+Apótema = {lado}/(2*tan(π/{n})) = {apotema:.4f}
+Área base = (perímetro*apótema)/2 = {area_base:.4f}
+Área lateral = perímetro*altura = {perimetro}*{h} = {area_lateral}
+Área total = 2*área base + área lateral = {area_total}
+Volume = área base*altura = {area_base:.4f}*{h} = {volume:.4f}
+"""
+
     return {
         "perímetro_base": round(perimetro,4),
         "área_base": round(area_base,4),
@@ -408,56 +443,78 @@ def prisma(n, lado, h):
         "área_lateral": round(area_lateral,4),
         "área_total": round(area_total,4),
         "volume": round(volume,4)
-    }
+    }, explicacao
 
 def cilindro(r, h):
     if r <= 0 or h <= 0:
-        return {"erro": "Raio e altura devem ser positivos"}
+        return {"erro": "Raio e altura devem ser positivos"}, ""
+
     area_base = math.pi*r**2
     area_lateral = 2*math.pi*r*h
     area_total = 2*area_base + area_lateral
     volume = area_base*h
-    resultado = {
+
+    explicacao = f"""🟠 Cilindro
+Área base = πr² = π*{r}² = {area_base:.4f}
+Área lateral = 2πrh = 2π*{r}*{h} = {area_lateral:.4f}
+Área total = 2*área base + área lateral = {area_total:.4f}
+Volume = área base*altura = {area_base:.4f}*{h} = {volume:.4f}
+"""
+
+    return {
         "área_base": round(area_base,4),
         "área_lateral": round(area_lateral,4),
         "área_total": round(area_total,4),
         "volume": round(volume,4)
-    }
-    if abs(r-h)<1e-6:
-        resultado["classificação"] = "cilindro equilátero (raio = altura)"
-    return resultado
+    }, explicacao
 
 def cone(r, h):
     if r <= 0 or h <= 0:
-        return {"erro": "Raio e altura devem ser positivos"}
+        return {"erro": "Raio e altura devem ser positivos"}, ""
+
     g = math.sqrt(r**2 + h**2)
     area_base = math.pi*r**2
     area_lateral = math.pi*r*g
     area_total = area_base + area_lateral
     volume = (math.pi*r**2*h)/3
-    resultado = {
+
+    explicacao = f"""🔻 Cone
+Geratriz = √(r²+h²) = √({r}²+{h}²) = {g:.4f}
+Área base = πr² = π*{r}² = {area_base:.4f}
+Área lateral = πrg = π*{r}*{g:.4f} = {area_lateral:.4f}
+Área total = base + lateral = {area_total:.4f}
+Volume = (πr²h)/3 = (π*{r}²*{h})/3 = {volume:.4f}
+"""
+
+    return {
         "geratriz": round(g,4),
         "área_base": round(area_base,4),
         "área_lateral": round(area_lateral,4),
         "área_total": round(area_total,4),
         "volume": round(volume,4)
-    }
-    if abs(r-h)<1e-6:
-        resultado["classificação"] = "cone equilátero (raio = altura)"
-    return resultado
+    }, explicacao
 
 def esfera(r, h=None):
     if r <= 0:
-        return {"erro": "Raio deve ser positivo"}
+        return {"erro": "Raio deve ser positivo"}, ""
+
     area = 4*math.pi*r**2
     volume = (4/3)*math.pi*r**3
     circ_max = 2*math.pi*r
+
+    explicacao = f"""⚪ Esfera
+Área superfície = 4πr² = 4π*{r}² = {area:.4f}
+Volume = 4/3πr³ = (4/3)*π*{r}³ = {volume:.4f}
+Circunferência máxima = 2πr = 2π*{r} = {circ_max:.4f}
+"""
+
     resultado = {
         "diâmetro": round(2*r,4),
         "área_superfície": round(area,4),
         "volume": round(volume,4),
         "circunferência_máxima": round(circ_max,4)
     }
+
     if h and 0 < h < 2*r:
         area_calota = 2*math.pi*r*h
         volume_calota = (math.pi*h**2*(3*r-h))/3
@@ -466,13 +523,16 @@ def esfera(r, h=None):
             "área": round(area_calota,4),
             "volume": round(volume_calota,4)
         }
-    return resultado
+        explicacao += f"Calota: área = 2πrh = {area_calota:.4f}, volume = (πh²(3r-h))/3 = {volume_calota:.4f}\n"
+
+    return resultado, explicacao
 
 def piramide(n, lado, h):
     if n < 3 or n > 6:
-        return {"erro": "Pirâmide só aceita base de 3 a 6 lados"}
+        return {"erro": "Pirâmide só aceita base de 3 a 6 lados"}, ""
     if lado <= 0 or h <= 0:
-        return {"erro": "Lado e altura devem ser positivos"}
+        return {"erro": "Lado e altura devem ser positivos"}, ""
+
     perimetro_base = n*lado
     apotema_base = lado/(2*math.tan(math.pi/n))
     area_base = (perimetro_base*apotema_base)/2
@@ -481,6 +541,17 @@ def piramide(n, lado, h):
     area_total = area_base + area_lateral
     volume = (area_base*h)/3
     nomes = {3:"triangular",4:"quadrada",5:"pentagonal",6:"hexagonal"}
+
+    explicacao = f"""⛏️ Pirâmide {nomes[n]}
+Perímetro base = n*lado = {n}*{lado} = {perimetro_base}
+Apótema base = {apotema_base:.4f}
+Área base = (perímetro*apótema)/2 = {area_base:.4f}
+Apótema lateral = √(h²+apotema_base²) = {apotema_lateral:.4f}
+Área lateral = (perímetro*apotema_lateral)/2 = {area_lateral:.4f}
+Área total = base + lateral = {area_total:.4f}
+Volume = (área base*h)/3 = ({area_base:.4f}*{h})/3 = {volume:.4f}
+"""
+
     return {
         "figura": f"pirâmide regular {nomes[n]}",
         "perímetro_base": round(perimetro_base,4),
@@ -490,7 +561,7 @@ def piramide(n, lado, h):
         "área_lateral": round(area_lateral,4),
         "área_total": round(area_total,4),
         "volume": round(volume,4)
-    }
+    }, explicacao
 
 # =========================================================
 # Função de Plotagem 3D
