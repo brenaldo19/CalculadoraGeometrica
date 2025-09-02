@@ -9,6 +9,123 @@ st.title("📐 Calculadora Geométrica")
 st.write("Escolha a figura geométrica e insira os parâmetros para calcular.")
 
 # =========================================================
+# Funções de cálculo – Bidimensionais
+# =========================================================
+
+def triangulo_master(a=None, b=None, c=None):
+    if not (a and b and c):
+        return {"erro": "Forneça os 3 lados."}
+    if not (a+b>c and a+c>b and b+c>a):
+        return {"erro": "Triângulo inválido."}
+
+    resultado = {}
+    perimetro = a+b+c
+    s = perimetro/2
+    area = math.sqrt(s*(s-a)*(s-b)*(s-c))
+    resultado["perímetro"] = round(perimetro,4)
+    resultado["área"] = round(area,4)
+
+    h_a = (2*area)/a
+    h_b = (2*area)/b
+    h_c = (2*area)/c
+    resultado["alturas"] = {"h_a": round(h_a,4), "h_b": round(h_b,4), "h_c": round(h_c,4)}
+
+    A = math.degrees(math.acos((b**2 + c**2 - a**2)/(2*b*c)))
+    B = math.degrees(math.acos((a**2 + c**2 - b**2)/(2*a*c)))
+    C = 180 - (A+B)
+    resultado["ângulos"] = {"A": round(A,2), "B": round(B,2), "C": round(C,2)}
+
+    if abs(a-b)<1e-6 and abs(b-c)<1e-6:
+        resultado["classificação_lados"] = "equilátero"
+    elif abs(a-b)<1e-6 or abs(b-c)<1e-6 or abs(a-c)<1e-6:
+        resultado["classificação_lados"] = "isósceles"
+    else:
+        resultado["classificação_lados"] = "escaleno"
+
+    if any(abs(x-90) < 1e-3 for x in [A,B,C]):
+        resultado["classificação_ângulos"] = "retângulo"
+    elif all(x < 90 for x in [A,B,C]):
+        resultado["classificação_ângulos"] = "acutângulo"
+    else:
+        resultado["classificação_ângulos"] = "obtusângulo"
+
+    return resultado
+
+def circulo(r, theta=None):
+    if not r or r <= 0:
+        return {"erro": "Raio deve ser positivo!"}
+    resultado = {}
+    resultado["área"] = round(math.pi * r**2, 4)
+    resultado["circunferência"] = round(2*math.pi*r, 4)
+    if theta:
+        arco = 2*math.pi*r*(theta/360)
+        setor = math.pi*r**2*(theta/360)
+        resultado["arco"] = round(arco, 4)
+        resultado["setor"] = round(setor, 4)
+    return resultado
+
+def quadrado(lado):
+    if lado <= 0:
+        return {"erro": "Forneça lado positivo!"}
+    return {"perímetro": 4*lado, "área": lado**2}
+
+def retangulo(base, altura):
+    if base <= 0 or altura <= 0:
+        return {"erro": "Base e altura devem ser positivos!"}
+    return {"perímetro": 2*(base+altura), "área": base*altura}
+
+def losango(lado, D, d):
+    if lado <= 0 or D <= 0 or d <= 0:
+        return {"erro": "Valores devem ser positivos!"}
+    area = (D*d)/2
+    perimetro = 4*lado
+    h = area/D
+    ang_agudo = math.degrees(2*math.atan(d/D))
+    return {
+        "área": round(area,4),
+        "perímetro": round(perimetro,4),
+        "altura": round(h,4),
+        "ângulos": {"agudo": round(ang_agudo,2), "obtuso": round(180-ang_agudo,2)}
+    }
+
+def paralelogramo(base, lado, altura=None, angulo=None):
+    if base <= 0 or lado <= 0:
+        return {"erro": "Base e lado devem ser positivos!"}
+    resultado = {"perímetro": round(2*(base+lado),4)}
+    if altura:
+        resultado["área"] = round(base*altura,4)
+    elif angulo:
+        ang_rad = math.radians(angulo)
+        area = base*lado*math.sin(ang_rad)
+        resultado["área"] = round(area,4)
+    return resultado
+
+def trapezio(B, b, l1, l2, h=None):
+    if B <= 0 or b <= 0 or l1 <= 0 or l2 <= 0:
+        return {"erro": "Todos os lados devem ser positivos!"}
+    resultado = {"perímetro": round(B+b+l1+l2,4)}
+    if h:
+        area = ((B+b)*h)/2
+        resultado["área"] = round(area,4)
+    return resultado
+
+def poligono(n, lado=None, R=None):
+    if n < 5 or n > 10:
+        return {"erro": "Número de lados deve estar entre 5 e 10!"}
+    perimetro, area, apotema = None, None, None
+    if lado:
+        perimetro = n*lado
+        apotema = lado/(2*math.tan(math.pi/n))
+        area = (perimetro*apotema)/2
+    elif R:
+        perimetro = 2*n*R*math.sin(math.pi/n)
+        apotema = R*math.cos(math.pi/n)
+        area = (perimetro*apotema)/2
+    else:
+        return {"erro": "Forneça lado ou raio circunscrito."}
+    return {"perímetro": round(perimetro,4), "área": round(area,4), "apotema": round(apotema,4)}
+
+# =========================================================
 # Função de Plotagem
 # =========================================================
 def plot_figura(tipo, **params):
@@ -41,11 +158,10 @@ def plot_figura(tipo, **params):
 
     elif tipo == "triângulo":
         a, b, c = params.get("a"), params.get("b"), params.get("c")
-        # coloca lado a na base
         xA, yA = 0, 0
         xB, yB = a, 0
         cos_gamma = (a**2 + b**2 - c**2)/(2*a*b)
-        cos_gamma = max(min(cos_gamma,1),-1)  # evitar erro numérico
+        cos_gamma = max(min(cos_gamma,1),-1)
         sin_gamma = (1 - cos_gamma**2)**0.5
         xC, yC = b*cos_gamma, b*sin_gamma
         coords = [(xA,yA), (xB,yB), (xC,yC)]
@@ -191,8 +307,9 @@ with tab8:
         resultado = poligono(n, lado if lado else None, R if R else None)
         st.write(resultado)
         if "erro" not in resultado:
-            R_plot = R if R else lado  # fallback simples
+            R_plot = R if R else lado
             plot_figura("polígono", n=n, R=R_plot)
+
 
 # =========================================================
 # Funções de cálculo – Parte 2
