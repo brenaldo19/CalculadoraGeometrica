@@ -1,5 +1,6 @@
 import streamlit as st
 import math
+from utils import entrada_numero   # importa função para permitir frações
 
 st.set_page_config(page_title="Calculadora Geométrica", layout="wide")
 
@@ -57,7 +58,7 @@ def triangulo_master(a=None, b=None, c=None):
 # Círculo (sem corda)
 # -----------------------------
 def circulo(r, theta=None):
-    if r <= 0:
+    if not r or r <= 0:
         return {"erro": "Raio deve ser positivo!"}
 
     resultado = {}
@@ -155,7 +156,7 @@ def poligono(n, lado=None, R=None):
 
 
 # =========================================================
-# Interface Streamlit – Parte 1 (ajustada)
+# Interface Streamlit – Parte 1 (com frações)
 # =========================================================
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "Triângulo", "Círculo", "Quadrado", "Retângulo", "Losango", "Paralelogramo", "Trapézio", "Polígono Regular"
@@ -163,66 +164,66 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
 
 with tab1:
     st.header("🔺 Triângulo")
-    a = st.number_input("Lado a", min_value=0.0, step=0.1)
-    b = st.number_input("Lado b", min_value=0.0, step=0.1)
-    c = st.number_input("Lado c", min_value=0.0, step=0.1)
+    a = entrada_numero("Lado a", chave="tri_a")
+    b = entrada_numero("Lado b", chave="tri_b")
+    c = entrada_numero("Lado c", chave="tri_c")
     if st.button("Calcular Triângulo"):
-        st.write(triangulo_master(a or None, b or None, c or None))
+        st.write(triangulo_master(a, b, c))
 
 with tab2:
     st.header("⚪ Círculo")
-    r = st.number_input("Raio", min_value=0.0, step=0.1)
-    theta = st.number_input("Ângulo θ (opcional)", min_value=0.0, step=0.1)
+    r = entrada_numero("Raio", chave="circ_r")
+    theta = entrada_numero("Ângulo θ (graus, opcional)", chave="circ_theta")
     if st.button("Calcular Círculo"):
-        st.write(circulo(r, theta if theta>0 else None))
+        st.write(circulo(r, theta if theta else None))
 
 with tab3:
     st.header("⬛ Quadrado")
-    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="quad")
+    lado = entrada_numero("Lado", chave="quad_lado")
     if st.button("Calcular Quadrado"):
         st.write(quadrado(lado))
 
 with tab4:
     st.header("▭ Retângulo")
-    base = st.number_input("Base", min_value=0.0, step=0.1, key="ret_base")
-    altura = st.number_input("Altura", min_value=0.0, step=0.1, key="ret_alt")
+    base = entrada_numero("Base", chave="ret_base")
+    altura = entrada_numero("Altura", chave="ret_alt")
     if st.button("Calcular Retângulo"):
         st.write(retangulo(base, altura))
 
 with tab5:
     st.header("⬟ Losango")
-    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="los_lado")
-    D = st.number_input("Diagonal maior", min_value=0.0, step=0.1)
-    d = st.number_input("Diagonal menor", min_value=0.0, step=0.1)
+    lado = entrada_numero("Lado", chave="los_lado")
+    D = entrada_numero("Diagonal maior", chave="los_D")
+    d = entrada_numero("Diagonal menor", chave="los_d")
     if st.button("Calcular Losango"):
         st.write(losango(lado, D, d))
 
 with tab6:
     st.header("▱ Paralelogramo")
-    base = st.number_input("Base", min_value=0.0, step=0.1, key="par_base")
-    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="par_lado")
-    altura = st.number_input("Altura (opcional)", min_value=0.0, step=0.1)
-    angulo = st.number_input("Ângulo (graus, opcional)", min_value=0.0, step=0.1)
+    base = entrada_numero("Base", chave="par_base")
+    lado = entrada_numero("Lado", chave="par_lado")
+    altura = entrada_numero("Altura (opcional)", chave="par_alt")
+    angulo = entrada_numero("Ângulo (graus, opcional)", chave="par_ang")
     if st.button("Calcular Paralelogramo"):
-        st.write(paralelogramo(base, lado, altura if altura>0 else None, angulo if angulo>0 else None))
+        st.write(paralelogramo(base, lado, altura if altura else None, angulo if angulo else None))
 
 with tab7:
     st.header("Trapézio")
-    B = st.number_input("Base maior", min_value=0.0, step=0.1)
-    b = st.number_input("Base menor", min_value=0.0, step=0.1)
-    l1 = st.number_input("Lado 1", min_value=0.0, step=0.1)
-    l2 = st.number_input("Lado 2", min_value=0.0, step=0.1)
-    h = st.number_input("Altura (opcional)", min_value=0.0, step=0.1)
+    B = entrada_numero("Base maior", chave="trap_B")
+    b = entrada_numero("Base menor", chave="trap_b")
+    l1 = entrada_numero("Lado 1", chave="trap_l1")
+    l2 = entrada_numero("Lado 2", chave="trap_l2")
+    h = entrada_numero("Altura (opcional)", chave="trap_h")
     if st.button("Calcular Trapézio"):
-        st.write(trapezio(B, b, l1, l2, h if h>0 else None))
+        st.write(trapezio(B, b, l1, l2, h if h else None))
 
 with tab8:
     st.header("Polígono Regular")
-    n = st.number_input("Número de lados (5 a 10)", min_value=5, max_value=10, step=1)
-    lado = st.number_input("Lado (opcional)", min_value=0.0, step=0.1, key="pol_lado")
-    R = st.number_input("Raio circunscrito (opcional)", min_value=0.0, step=0.1, key="pol_R")
+    n = entrada_numero("Número de lados (5 a 10)", min_value=5, max_value=10, step=1)
+    lado = entrada_numero("Lado (opcional)", chave="pol_lado")
+    R = entrada_numero("Raio circunscrito (opcional)", chave="pol_R")
     if st.button("Calcular Polígono"):
-        st.write(poligono(n, lado if lado>0 else None, R if R>0 else None))
+        st.write(poligono(n, lado if lado else None, R if R else None))
 
 # =========================================================
 # Funções de cálculo – Parte 2
@@ -390,51 +391,51 @@ tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs([
 
 with tab8:
     st.header("⬛ Cubo")
-    lado = st.number_input("Lado", min_value=0.0, step=0.1, key="cubo_lado")
+    lado = entrada_numero("Lado", min_value=0.0, step=0.1, key="cubo_lado")
     if st.button("Calcular Cubo"):
         st.write(cubo(lado))
 
 with tab9:
     st.header("📦 Paralelepípedo")
-    c = st.number_input("Comprimento", min_value=0.0, step=0.1)
-    l = st.number_input("Largura", min_value=0.0, step=0.1)
-    h = st.number_input("Altura", min_value=0.0, step=0.1)
+    c = entrada_numero("Comprimento", min_value=0.0, step=0.1)
+    l = entrada_numero("Largura", min_value=0.0, step=0.1)
+    h = entrada_numero("Altura", min_value=0.0, step=0.1)
     if st.button("Calcular Paralelepípedo"):
         st.write(paralelepipedo(c, l, h))
 
 with tab10:
     st.header("🔺 Prisma Regular")
-    n = st.number_input("Número de lados da base", min_value=3, step=1)
-    lado = st.number_input("Lado da base", min_value=0.0, step=0.1, key="prisma_lado")
-    h = st.number_input("Altura", min_value=0.0, step=0.1, key="prisma_alt")
+    n = entrada_numero("Número de lados da base", min_value=3, step=1)
+    lado = entrada_numero("Lado da base", min_value=0.0, step=0.1, key="prisma_lado")
+    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="prisma_alt")
     if st.button("Calcular Prisma"):
         st.write(prisma(n, lado, h))
 
 with tab11:
     st.header("🟠 Cilindro")
-    r = st.number_input("Raio", min_value=0.0, step=0.1, key="cil_r")
-    h = st.number_input("Altura", min_value=0.0, step=0.1, key="cil_h")
+    r = entrada_numero("Raio", min_value=0.0, step=0.1, key="cil_r")
+    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="cil_h")
     if st.button("Calcular Cilindro"):
         st.write(cilindro(r, h))
 
 with tab12:
     st.header("🔻 Cone")
-    r = st.number_input("Raio", min_value=0.0, step=0.1, key="cone_r")
-    h = st.number_input("Altura", min_value=0.0, step=0.1, key="cone_h")
+    r = entrada_numero("Raio", min_value=0.0, step=0.1, key="cone_r")
+    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="cone_h")
     if st.button("Calcular Cone"):
         st.write(cone(r, h))
 
 with tab13:
     st.header("⚪ Esfera")
-    r = st.number_input("Raio", min_value=0.0, step=0.1, key="esf_r")
-    h = st.number_input("Altura da calota (opcional)", min_value=0.0, step=0.1)
+    r = entrada_numero("Raio", min_value=0.0, step=0.1, key="esf_r")
+    h = entrada_numero("Altura da calota (opcional)", min_value=0.0, step=0.1)
     if st.button("Calcular Esfera"):
         st.write(esfera(r, h if h>0 else None))
 
 with tab14:
     st.header("⛏️ Pirâmide Regular")
-    n = st.number_input("Número de lados da base (3 a 6)", min_value=3, max_value=6, step=1)
-    lado = st.number_input("Lado da base", min_value=0.0, step=0.1, key="pir_lado")
-    h = st.number_input("Altura", min_value=0.0, step=0.1, key="pir_h")
+    n = entrada_numero("Número de lados da base (3 a 6)", min_value=3, max_value=6, step=1)
+    lado = entrada_numero("Lado da base", min_value=0.0, step=0.1, key="pir_lado")
+    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="pir_h")
     if st.button("Calcular Pirâmide"):
         st.write(piramide(n, lado, h))
