@@ -63,12 +63,23 @@ def eval_expr(expr: str):
     return float(_eval(node))
 
 
-def entrada_numero(label, valor_padrao=0.0, key=None):
+def entrada_numero(rotulo, valor_inicial=0.0, key=None):
+    """
+    Entrada numérica com controle de chave única.
+    - rotulo: texto exibido no campo
+    - valor_inicial: valor padrão
+    - key: chave única (obrigatório diferenciar em cada uso)
+    """
     if key is None:
-        # gera chave única a partir do label
-        key = f"{label}_{str(id(label))}"
-    return st.number_input(label, value=float(valor_padrao), format="%.4f", key=key)
+        chave = rotulo   # fallback, mas NÃO recomendado
+    else:
+        chave = key
 
+    valor_str = st.text_input(rotulo, value=str(valor_inicial), key=chave)
+    try:
+        return float(valor_str)
+    except ValueError:
+        return 0.0
     """
     Entrada de número que aceita:
     - decimais: 2.5
