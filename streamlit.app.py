@@ -2105,7 +2105,7 @@ with tabs[7]:
     ]
     caso_txt = st.selectbox("Selecione o caso", casos_pol, key="pol_select")
     caso = int(caso_txt.split(".")[0])
-    n=entrada_numero("Número de lados (5 a 10)",5)
+    n = entrada_numero("Número de lados (5 a 10)", key="pol_inv_n")
 
 if caso == 1:
     a = entrada_numero("Lado", key="pol_c1_a")
