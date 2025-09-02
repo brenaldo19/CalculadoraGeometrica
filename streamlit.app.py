@@ -833,9 +833,14 @@ Hipervolume = (1/2)*π²*r⁴ = {hipervolume:.4f}
 def project_4d_to_3d(vertices4d):
     vertices3d = []
     for (x,y,z,w) in vertices4d:
-        k = 2/(w+2)  # projeção perspectiva
+        denom = (w+2)
+        if abs(denom) < 1e-6:  # evita divisão por zero
+            k = 1  # fallback: projeção ortográfica
+        else:
+            k = 2/denom
         vertices3d.append((x*k, y*k, z*k))
     return vertices3d
+
 
 
 def plot_poliedro_4d(vertices4d, edges, color="blue"):
