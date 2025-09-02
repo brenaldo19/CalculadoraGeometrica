@@ -578,78 +578,89 @@ Volume = (área base*h)/3 = ({area_base:.4f}*{h})/3 = {volume:.4f}
 # Função de Plotagem 3D (todos os sólidos)
 # =========================================================
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+# =========================================================
+# Função de Plotagem 3D (todos os sólidos) – com Plotly
+# =========================================================
+import plotly.graph_objects as go
 
 def plot_figura_3d(tipo, **params):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    fig = go.Figure()
 
     if tipo == "cubo":
         lado = params.get("lado",1)
         vertices = [(x,y,z) for x in [0,lado] for y in [0,lado] for z in [0,lado]]
-        faces = [
-            [vertices[j] for j in [0,1,2,3]], [vertices[j] for j in [4,5,6,7]],
-            [vertices[j] for j in [0,1,5,4]], [vertices[j] for j in [2,3,7,6]],
-            [vertices[j] for j in [1,2,6,5]], [vertices[j] for j in [0,3,7,4]],
-        ]
-        ax.add_collection3d(Poly3DCollection(faces, facecolors="cyan", edgecolors="k", alpha=.25))
+        edges = [(i,j) for i,v1 in enumerate(vertices)
+                        for j,v2 in enumerate(vertices)
+                        if sum(a!=b for a,b in zip(v1,v2))==1]
+        for (i,j) in edges:
+            x,y,z = zip(vertices[i], vertices[j])
+            fig.add_trace(go.Scatter3d(x=x,y=y,z=z,mode="lines",line=dict(color="cyan")))
 
     elif tipo == "paralelepipedo":
         c = params.get("c",1); l = params.get("l",1); h = params.get("h",1)
-        vertices = np.array([
-            [0,0,0],[c,0,0],[c,l,0],[0,l,0],
-            [0,0,h],[c,0,h],[c,l,h],[0,l,h]
-        ])
-        faces = [
-            [vertices[j] for j in [0,1,2,3]],[vertices[j] for j in [4,5,6,7]],
-            [vertices[j] for j in [0,1,5,4]],[vertices[j] for j in [2,3,7,6]],
-            [vertices[j] for j in [1,2,6,5]],[vertices[j] for j in [0,3,7,4]],
+        vertices = [
+            (0,0,0),(c,0,0),(c,l,0),(0,l,0),
+            (0,0,h),(c,0,h),(c,l,h),(0,l,h)
         ]
-        ax.add_collection3d(Poly3DCollection(faces, facecolors="orange", edgecolors="k", alpha=.25))
+        edges = [(0,1),(1,2),(2,3),(3,0),
+                 (4,5),(5,6),(6,7),(7,4),
+                 (0,4),(1,5),(2,6),(3,7)]
+        for (i,j) in edges:
+            x,y,z = zip(vertices[i], vertices[j])
+            fig.add_trace(go.Scatter3d(x=x,y=y,z=z,mode="lines",line=dict(color="orange")))
 
     elif tipo == "prisma":
         n = params.get("n",5); lado = params.get("lado",1); h = params.get("h",2)
         R = lado/(2*math.sin(math.pi/n))
         base_inf = [(R*math.cos(2*math.pi*i/n), R*math.sin(2*math.pi*i/n), 0) for i in range(n)]
         base_sup = [(x,y,h) for (x,y,_) in base_inf]
-        faces = [base_inf, base_sup]
+        # bases
         for i in range(n):
-            faces.append([base_inf[i], base_inf[(i+1)%n], base_sup[(i+1)%n], base_sup[i]])
-        ax.add_collection3d(Poly3DCollection(faces, facecolors="lightgreen", edgecolors="k", alpha=.25))
+            x,y,z = zip(base_inf[i], base_inf[(i+1)%n])
+            fig.add_trace(go.Scatter3d(x=x,y=y,z=z,mode="lines",line=dict(color="green")))
+            x,y,z = zip(base_sup[i], base_sup[(i+1)%n])
+            fig.add_trace(go.Scatter3d(x=x,y=y,z=z,mode="lines",line=dict(color="green")))
+            x,y,z = zip(base_inf[i], base_sup[i])
+            fig.add_trace(go.Scatter3d(x=x,y=y,z=z,mode="lines",line=dict(color="green")))
 
     elif tipo == "cilindro":
         r = params.get("r",1); h = params.get("h",2)
         z = np.linspace(0,h,30); theta = np.linspace(0,2*np.pi,30)
         theta,z = np.meshgrid(theta,z)
         x = r*np.cos(theta); y = r*np.sin(theta)
-        ax.plot_surface(x,y,z,alpha=0.3,color="blue")
+        fig.add_trace(go.Surface(x=x,y=y,z=z,opacity=0.5,colorscale="Blues"))
 
     elif tipo == "cone":
         r = params.get("r",1); h = params.get("h",2)
         theta = np.linspace(0,2*np.pi,30); R = np.linspace(0,r,30)
         T,R = np.meshgrid(theta,R)
         X = R*np.cos(T); Y = R*np.sin(T); Z = (h/r)*(r-R)
-        ax.plot_surface(X,Y,Z,alpha=0.3,color="red")
+        fig.add_trace(go.Surface(x=X,y=Y,z=Z,opacity=0.5,colorscale="Reds"))
 
     elif tipo == "esfera":
         r = params.get("r",1)
-        u = np.linspace(0,2*np.pi,30); v = np.linspace(0,np.pi,30)
+        u = np.linspace(0,2*np.pi,60); v = np.linspace(0,np.pi,30)
         x = r*np.outer(np.cos(u), np.sin(v))
         y = r*np.outer(np.sin(u), np.sin(v))
         z = r*np.outer(np.ones_like(u), np.cos(v))
-        ax.plot_wireframe(x,y,z,color="purple",alpha=0.5)
+        fig.add_trace(go.Surface(x=x,y=y,z=z,opacity=0.5,colorscale="Viridis"))
 
     elif tipo == "pirâmide":
         n = params.get("n",4); lado = params.get("lado",1); h = params.get("h",2)
         R = lado/(2*math.sin(math.pi/n))
         base = [(R*math.cos(2*math.pi*i/n), R*math.sin(2*math.pi*i/n), 0) for i in range(n)]
         topo = (0,0,h)
-        faces = [base]
+        # base
         for i in range(n):
-            faces.append([base[i], base[(i+1)%n], topo])
-        ax.add_collection3d(Poly3DCollection(faces, facecolors="yellow", edgecolors="k", alpha=.25))
+            x,y,z = zip(base[i], base[(i+1)%n])
+            fig.add_trace(go.Scatter3d(x=x,y=y,z=z,mode="lines",line=dict(color="yellow")))
+        # laterais
+        for i in range(n):
+            x,y,z = zip(base[i], topo)
+            fig.add_trace(go.Scatter3d(x=x,y=y,z=z,mode="lines",line=dict(color="yellow")))
 
-    ax.set_box_aspect([1,1,1])
-    st.pyplot(fig)
+    fig.update_layout(scene=dict(aspectmode="data"))
+    st.plotly_chart(fig, use_container_width=True)
 
 
 # =========================================================
