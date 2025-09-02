@@ -3,6 +3,7 @@ import streamlit as st
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Calculadora Geométrica", layout="wide")
 
@@ -733,10 +734,10 @@ with tab14:
 # =========================================================
 # Funções de Plotagem 4D
 # =========================================================
+# =========================================================
+# Funções de Plotagem 4D (interativas com Plotly)
+# =========================================================
 def plot_figura_4d(tipo, **params):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-
     if tipo == "tesseract":
         lado = params.get("lado", 1)
         # Vértices 4D
@@ -744,7 +745,7 @@ def plot_figura_4d(tipo, **params):
         # Projeção 4D -> 3D
         vertices3d = []
         for (x,y,z,w) in vertices4d:
-            k = 2/(w+2)  # fator de projeção
+            k = 2/(w+2)  # projeção simples
             vertices3d.append((x*k,y*k,z*k))
         # Arestas
         edges = []
@@ -752,51 +753,54 @@ def plot_figura_4d(tipo, **params):
             for j,v2 in enumerate(vertices4d):
                 if sum(a!=b for a,b in zip(v1,v2)) == 1:
                     edges.append((vertices3d[i], vertices3d[j]))
-        # Desenho
+        # Plotly
+        fig = go.Figure()
         for (p1,p2) in edges:
             xs,ys,zs = zip(p1,p2)
-            ax.plot(xs,ys,zs,color="blue",alpha=0.6)
+            fig.add_trace(go.Scatter3d(x=xs,y=ys,z=zs,mode="lines",line=dict(color="blue")))
+        fig.update_layout(scene=dict(aspectmode="data"))
+        st.plotly_chart(fig, use_container_width=True)
 
     elif tipo == "hiperesfera":
-        r = params.get("r",1)
-        u = np.linspace(0,2*np.pi,30)
-        v = np.linspace(0,np.pi,30)
-        x = r*np.outer(np.cos(u),np.sin(v))
-        y = r*np.outer(np.sin(u),np.sin(v))
-        z = r*np.outer(np.ones_like(u),np.cos(v))
-        ax.plot_wireframe(x,y,z,color="red",alpha=0.5)
-
-    ax.set_box_aspect([1,1,1])
-    st.pyplot(fig)
-
+        r = params.get("r", 1)
+        u = np.linspace(0, 2*np.pi, 60)
+        v = np.linspace(0, np.pi, 30)
+        x = r*np.outer(np.cos(u), np.sin(v))
+        y = r*np.outer(np.sin(u), np.sin(v))
+        z = r*np.outer(np.ones_like(u), np.cos(v))
+        fig = go.Figure(data=[go.Surface(x=x,y=y,z=z,colorscale="Viridis",opacity=0.7)])
+        fig.update_layout(scene=dict(aspectmode="data"))
+        st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
 # Funções de Plotagem Topologia
 # =========================================================
+# =========================================================
+# Funções de Plotagem Topologia (interativas com Plotly)
+# =========================================================
 def plot_figura_topologia(tipo, **params):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-
     if tipo == "mobius":
-        u = np.linspace(0,2*np.pi,50)
-        v = np.linspace(-0.5,0.5,10)
+        u = np.linspace(0,2*np.pi,60)
+        v = np.linspace(-0.5,0.5,20)
         U,V = np.meshgrid(u,v)
         X = (1+V*np.cos(U/2))*np.cos(U)
         Y = (1+V*np.cos(U/2))*np.sin(U)
         Z = V*np.sin(U/2)
-        ax.plot_surface(X,Y,Z,color="purple",alpha=0.6)
+        fig = go.Figure(data=[go.Surface(x=X,y=Y,z=Z,colorscale="Plasma",opacity=0.8)])
+        fig.update_layout(scene=dict(aspectmode="data"))
+        st.plotly_chart(fig, use_container_width=True)
 
     elif tipo == "klein":
-        u = np.linspace(0,2*np.pi,50)
-        v = np.linspace(0,2*np.pi,50)
+        u = np.linspace(0,2*np.pi,60)
+        v = np.linspace(0,2*np.pi,60)
         U,V = np.meshgrid(u,v)
         X = (2+np.cos(U/2)*np.sin(V)-np.sin(U/2)*np.sin(2*V))*np.cos(U)
         Y = (2+np.cos(U/2)*np.sin(V)-np.sin(U/2)*np.sin(2*V))*np.sin(U)
         Z = np.sin(U/2)*np.sin(V)+np.cos(U/2)*np.sin(2*V)
-        ax.plot_surface(X,Y,Z,color="green",alpha=0.6)
+        fig = go.Figure(data=[go.Surface(x=X,y=Y,z=Z,colorscale="Cividis",opacity=0.8)])
+        fig.update_layout(scene=dict(aspectmode="data"))
+        st.plotly_chart(fig, use_container_width=True)
 
-    ax.set_box_aspect([1,1,1])
-    st.pyplot(fig)
 
 
 # =========================================================
@@ -815,7 +819,6 @@ with tab16:
     r = entrada_numero("Raio", chave="hiper_r")
     if st.button("Visualizar Hiperesfera"):
         plot_figura_4d("hiperesfera", r=r)
-
 
 # =========================================================
 # Interface Streamlit – Parte 4 (Topologia)
