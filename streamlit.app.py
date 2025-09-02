@@ -732,9 +732,6 @@ with tab14:
         if "erro" not in resultado: plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
 
 # =========================================================
-# Funções de Plotagem 4D
-# =========================================================
-# =========================================================
 # Funções de Plotagem 4D (interativas com Plotly)
 # =========================================================
 def plot_figura_4d(tipo, **params):
@@ -772,9 +769,7 @@ def plot_figura_4d(tipo, **params):
         fig.update_layout(scene=dict(aspectmode="data"))
         st.plotly_chart(fig, use_container_width=True)
 
-# =========================================================
-# Funções de Plotagem Topologia
-# =========================================================
+
 # =========================================================
 # Funções de Plotagem Topologia (interativas com Plotly)
 # =========================================================
@@ -802,7 +797,6 @@ def plot_figura_topologia(tipo, **params):
         st.plotly_chart(fig, use_container_width=True)
 
 
-
 # =========================================================
 # Interface Streamlit – Parte 3 (4D)
 # =========================================================
@@ -819,6 +813,7 @@ with tab16:
     r = entrada_numero("Raio", chave="hiper_r")
     if st.button("Visualizar Hiperesfera"):
         plot_figura_4d("hiperesfera", r=r)
+
 
 # =========================================================
 # Interface Streamlit – Parte 4 (Topologia)
