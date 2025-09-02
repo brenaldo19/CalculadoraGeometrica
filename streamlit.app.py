@@ -219,7 +219,7 @@ with tab7:
 
 with tab8:
     st.header("Polígono Regular")
-    n = entrada_numero("Número de lados (5 a 10)", min_value=5, max_value=10, step=1)
+    n = st.number_input("Número de lados (5 a 10)", min_value=5, max_value=10, step=1)
     lado = entrada_numero("Lado (opcional)", chave="pol_lado")
     R = entrada_numero("Raio circunscrito (opcional)", chave="pol_R")
     if st.button("Calcular Polígono"):
@@ -405,7 +405,7 @@ with tab9:
 
 with tab10:
     st.header("🔺 Prisma Regular")
-    n = entrada_numero("Número de lados da base", min_value=3, step=1)
+    n = st.number_input("Número de lados da base", min_value=3, step=1)
     lado = entrada_numero("Lado da base", min_value=0.0, step=0.1, key="prisma_lado")
     h = entrada_numero("Altura", min_value=0.0, step=0.1, key="prisma_alt")
     if st.button("Calcular Prisma"):
@@ -434,7 +434,7 @@ with tab13:
 
 with tab14:
     st.header("⛏️ Pirâmide Regular")
-    n = entrada_numero("Número de lados da base (3 a 6)", min_value=3, max_value=6, step=1)
+    n = st.number_input("Número de lados da base (3 a 6)", min_value=3, max_value=6, step=1)
     lado = entrada_numero("Lado da base", min_value=0.0, step=0.1, key="pir_lado")
     h = entrada_numero("Altura", min_value=0.0, step=0.1, key="pir_h")
     if st.button("Calcular Pirâmide"):
