@@ -988,3 +988,240 @@ with tab19:
         if "erro" not in resultado:
             plot_figura_4d("hiperesfera", r=r)
 
+# =========================================================
+# Triângulo Inverso – todos os 20 casos
+# =========================================================
+
+def triangulo_inverso(caso, **kwargs):
+    # ------------------------------
+    # Grupo 1 – Básicos (Lados + Ângulos)
+    # ------------------------------
+    # Caso 1: 2 lados + ângulo entre eles → 3º lado + área
+    if caso == 1:
+        a, b, angC = kwargs["a"], kwargs["b"], math.radians(kwargs["angC"])
+        c = math.sqrt(a**2 + b**2 - 2*a*b*math.cos(angC))
+        area = 0.5*a*b*math.sin(angC)
+        explicacao = f"""Caso 1
+Lei dos cossenos: c² = a² + b² - 2ab·cos(C)
+Área = ½ab·sen(C)
+"""
+        return {"c": round(c,4), "area": round(area,4)}, explicacao
+
+    # Caso 2: 2 lados + ângulo oposto a um deles → ângulo oposto ao outro
+    if caso == 2:
+        a, b, angA = kwargs["a"], kwargs["b"], math.radians(kwargs["angA"])
+        senB = b*math.sin(angA)/a
+        if abs(senB) > 1:
+            return {"erro":"Dados inválidos"}, ""
+        angB = math.degrees(math.asin(senB))
+        explicacao = f"""Caso 2
+Lei dos senos: sen(B)/b = sen(A)/a
+"""
+        return {"angB": round(angB,4)}, explicacao
+
+    # ------------------------------
+    # Grupo 2 – Misturando área
+    # ------------------------------
+    # Caso 3: Área + 2 lados → ângulo entre eles
+    if caso == 3:
+        a,b,area = kwargs["a"], kwargs["b"], kwargs["area"]
+        senC = (2*area)/(a*b)
+        if abs(senC) > 1:
+            return {"erro":"Área inválida"}, ""
+        angC = math.degrees(math.asin(senC))
+        explicacao = f"""Caso 3
+Área = ½ab·sen(C) → sen(C) = 2A/(ab)
+"""
+        return {"angC": round(angC,4)}, explicacao
+
+    # Caso 4: Área + 1 lado + ângulo oposto → outro lado
+    if caso == 4:
+        a, area, angB = kwargs["a"], kwargs["area"], math.radians(kwargs["angB"])
+        c = (2*area)/(a*math.sin(angB))
+        explicacao = f"""Caso 4
+Área = ½ac·sen(B) → c = 2A/(a·sen(B))
+"""
+        return {"c": round(c,4)}, explicacao
+
+    # Caso 5: Área + 3 ângulos → lados proporcionais
+    if caso == 5:
+        area = kwargs["area"]
+        angA, angB, angC = map(lambda x: math.radians(kwargs[x]), ["angA","angB","angC"])
+        # escala aproximada
+        k = math.sqrt((4*area)/(math.sin(2*angA)+math.sin(2*angB)+math.sin(2*angC)))
+        a = k*math.sin(angA); b = k*math.sin(angB); c = k*math.sin(angC)
+        explicacao = f"""Caso 5
+3 ângulos + área → apenas semelhança
+Escala definida pela área
+"""
+        return {"a": round(a,4), "b": round(b,4), "c": round(c,4)}, explicacao
+
+    # ------------------------------
+    # Grupo 3 – Mistura de ângulos
+    # ------------------------------
+    # Caso 6: 1 lado + 2 ângulos → outros 2 lados
+    if caso == 6:
+        a = kwargs["a"]
+        angA = math.radians(kwargs["angA"])
+        angB = math.radians(kwargs["angB"])
+        angC = math.pi-(angA+angB)
+        b = a*math.sin(angB)/math.sin(angA)
+        c = a*math.sin(angC)/math.sin(angA)
+        return {"b": round(b,4),"c": round(c,4)}, "Caso 6 – Lei dos senos"
+
+    # Caso 7: 2 ângulos + área → lados em escala
+    if caso == 7:
+        area = kwargs["area"]
+        angA,angB = map(lambda x: math.radians(kwargs[x]),["angA","angB"])
+        angC = math.pi-(angA+angB)
+        k = math.sqrt((2*area*math.sin(angA+angB))/(math.sin(angA)*math.sin(angB)*math.sin(angC)))
+        a=k*math.sin(angA); b=k*math.sin(angB); c=k*math.sin(angC)
+        return {"a":round(a,4),"b":round(b,4),"c":round(c,4)}, "Caso 7 – Escala com área e ângulos"
+
+    # Caso 8: 3 ângulos + perímetro → lados
+    if caso == 8:
+        P=kwargs["perimetro"]
+        angA,angB,angC = map(lambda x: math.radians(kwargs[x]),["angA","angB","angC"])
+        k=P/(math.sin(angA)+math.sin(angB)+math.sin(angC))
+        a=k*math.sin(angA); b=k*math.sin(angB); c=k*math.sin(angC)
+        return {"a":round(a,4),"b":round(b,4),"c":round(c,4)}, "Caso 8 – Escala com perímetro e ângulos"
+
+    # ------------------------------
+    # Grupo 4 – Alturas/medianas/bissetrizes
+    # ------------------------------
+    # Caso 9: 1 lado + altura relativa → área
+    if caso == 9:
+        a,h=kwargs["a"],kwargs["h"]
+        area=0.5*a*h
+        return {"area":round(area,4)}, "Caso 9 – Área = ½ah"
+
+    # Caso 10: 3 alturas (complexo – placeholder)
+    if caso == 10:
+        return {"info":"Necessário resolver sistema – não implementado"}, "Caso 10 – 3 alturas"
+
+    # Caso 11: 1 lado + bissetriz + ângulos
+    if caso == 11:
+        return {"info":"Cálculo avançado de bissetriz – não implementado"}, "Caso 11 – bissetriz"
+
+    # Caso 12: lado + mediatriz
+    if caso == 12:
+        return {"info":"Mediatriz → circunrádio – não implementado"}, "Caso 12 – mediatriz"
+
+    # ------------------------------
+    # Grupo 5 – Circunferências notáveis
+    # ------------------------------
+    # Caso 13: r + P → área
+    if caso == 13:
+        r,P=kwargs["r"],kwargs["P"]
+        area=0.5*r*P
+        return {"area":round(area,4)}, "Caso 13 – Área = rP/2"
+
+    # Caso 14: R + ângulos → lados
+    if caso == 14:
+        R=kwargs["R"]
+        angA,angB,angC = map(lambda x: math.radians(kwargs[x]),["angA","angB","angC"])
+        a=2*R*math.sin(angA); b=2*R*math.sin(angB); c=2*R*math.sin(angC)
+        return {"a":round(a,4),"b":round(b,4),"c":round(c,4)}, "Caso 14 – Lei dos senos com R"
+
+    # Caso 15: área + r → perímetro
+    if caso == 15:
+        area,r=kwargs["area"],kwargs["r"]
+        P=2*area/r
+        return {"P":round(P,4)}, "Caso 15 – P=2A/r"
+
+    # Caso 16: área + R → lados via trig
+    if caso == 16:
+        return {"info":"Necessário trig avançada com R – não implementado"}, "Caso 16"
+
+    # ------------------------------
+    # Grupo 6 – Retângulo
+    # ------------------------------
+    # Caso 17: catetos → hipotenusa
+    if caso == 17:
+        cat1,cat2=kwargs["cat1"],kwargs["cat2"]
+        hip=math.sqrt(cat1**2+cat2**2)
+        return {"hip":round(hip,4)}, "Caso 17 – Pitágoras"
+
+    # Caso 18: hip + cat → outro cateto
+    if caso == 18:
+        hip,cat=kwargs["hip"],kwargs["cat"]
+        outro=math.sqrt(hip**2-cat**2)
+        return {"outro_cat":round(outro,4)}, "Caso 18 – Pitágoras"
+
+    # Caso 19: área + cat → outro cateto
+    if caso == 19:
+        area,cat=kwargs["area"],kwargs["cat"]
+        outro=(2*area)/cat
+        return {"outro_cat":round(outro,4)}, "Caso 19 – Área=½ab"
+
+    # Caso 20: perímetro + área → lados
+    if caso == 20:
+        return {"info":"Sistema de equações (não implementado)"}, "Caso 20"
+
+    return {"erro":"Caso não reconhecido"}, ""
+# =========================================================
+# Interface – Triângulo Inverso (20 casos)
+# =========================================================
+tab_triang_inv = st.tabs(["🔺 Triângulo Inverso"])[0]
+
+with tab_triang_inv:
+    st.header("🔺 Triângulo Inverso")
+
+    caso = st.selectbox("Selecione o caso", list(range(1,21)))
+
+    if caso == 1:
+        a=entrada_numero("Lado a"); b=entrada_numero("Lado b"); angC=entrada_numero("Ângulo C (graus)")
+        if st.button("Calcular"): st.write(*triangulo_inverso(1,a=a,b=b,angC=angC))
+    if caso == 2:
+        a=entrada_numero("Lado a"); b=entrada_numero("Lado b"); angA=entrada_numero("Ângulo A (graus)")
+        if st.button("Calcular"): st.write(*triangulo_inverso(2,a=a,b=b,angA=angA))
+    if caso == 3:
+        a=entrada_numero("Lado a"); b=entrada_numero("Lado b"); area=entrada_numero("Área")
+        if st.button("Calcular"): st.write(*triangulo_inverso(3,a=a,b=b,area=area))
+    if caso == 4:
+        a=entrada_numero("Lado a"); angB=entrada_numero("Ângulo B (graus)"); area=entrada_numero("Área")
+        if st.button("Calcular"): st.write(*triangulo_inverso(4,a=a,angB=angB,area=area))
+    if caso == 5:
+        angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B"); angC=entrada_numero("Ângulo C"); area=entrada_numero("Área")
+        if st.button("Calcular"): st.write(*triangulo_inverso(5,area=area,angA=angA,angB=angB,angC=angC))
+    if caso == 6:
+        a=entrada_numero("Lado a"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B")
+        if st.button("Calcular"): st.write(*triangulo_inverso(6,a=a,angA=angA,angB=angB))
+    if caso == 7:
+        area=entrada_numero("Área"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B")
+        if st.button("Calcular"): st.write(*triangulo_inverso(7,area=area,angA=angA,angB=angB))
+    if caso == 8:
+        P=entrada_numero("Perímetro"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B"); angC=entrada_numero("Ângulo C")
+        if st.button("Calcular"): st.write(*triangulo_inverso(8,perimetro=P,angA=angA,angB=angB,angC=angC))
+    if caso == 9:
+        a=entrada_numero("Lado a"); h=entrada_numero("Altura relativa")
+        if st.button("Calcular"): st.write(*triangulo_inverso(9,a=a,h=h))
+    if caso == 10:
+        st.write(*triangulo_inverso(10))
+    if caso == 11:
+        st.write(*triangulo_inverso(11))
+    if caso == 12:
+        st.write(*triangulo_inverso(12))
+    if caso == 13:
+        r=entrada_numero("Raio inscrito"); P=entrada_numero("Perímetro")
+        if st.button("Calcular"): st.write(*triangulo_inverso(13,r=r,P=P))
+    if caso == 14:
+        R=entrada_numero("Raio circunscrito"); angA=entrada_numero("Ângulo A"); angB=entrada_numero("Ângulo B"); angC=entrada_numero("Ângulo C")
+        if st.button("Calcular"): st.write(*triangulo_inverso(14,R=R,angA=angA,angB=angB,angC=angC))
+    if caso == 15:
+        area=entrada_numero("Área"); r=entrada_numero("Raio inscrito")
+        if st.button("Calcular"): st.write(*triangulo_inverso(15,area=area,r=r))
+    if caso == 16:
+        area=entrada_numero("Área"); R=entrada_numero("Raio circunscrito")
+        if st.button("Calcular"): st.write(*triangulo_inverso(16,area=area,R=R))
+    if caso == 17:
+        cat1=entrada_numero("Cateto 1"); cat2=entrada_numero("Cateto 2")
+        if st.button("Calcular"): st.write(*triangulo_inverso(17,cat1=cat1,cat2=cat2))
+    if caso == 18:
+        hip=entrada_numero("Hipotenusa"); cat=entrada_numero("Cateto")
+        if st.button("Calcular"): st.write(*triangulo_inverso(18,hip=hip,cat=cat))
+    if caso == 19:
+        area=entrada_numero("Área"); cat=entrada_numero("Cateto")
+        if st.button("Calcular"): st.write(*triangulo_inverso(19,area=area,cat=cat))
+    if caso == 20:
+        st.write(*triangulo_inverso(20))
