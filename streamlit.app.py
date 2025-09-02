@@ -15,116 +15,147 @@ st.write("Escolha a figura geométrica e insira os parâmetros para calcular.")
 
 def triangulo_master(a=None, b=None, c=None):
     if not (a and b and c):
-        return {"erro": "Forneça os 3 lados."}
+        return {"erro": "Forneça os 3 lados."}, ""
     if not (a+b>c and a+c>b and b+c>a):
-        return {"erro": "Triângulo inválido."}
+        return {"erro": "Triângulo inválido."}, ""
 
-    resultado = {}
     perimetro = a+b+c
     s = perimetro/2
     area = math.sqrt(s*(s-a)*(s-b)*(s-c))
-    resultado["perímetro"] = round(perimetro,4)
-    resultado["área"] = round(area,4)
 
-    h_a = (2*area)/a
-    h_b = (2*area)/b
-    h_c = (2*area)/c
-    resultado["alturas"] = {"h_a": round(h_a,4), "h_b": round(h_b,4), "h_c": round(h_c,4)}
+    explicacao = f"""🔺 Triângulo (fórmula de Heron)
+s = (a+b+c)/2 = ({a}+{b}+{c})/2 = {s}
+Área = √(s*(s-a)*(s-b)*(s-c))
+Área = √({s}*({s}-{a})*({s}-{b})*({s}-{c}))
+Área = {area:.4f}
+"""
 
-    A = math.degrees(math.acos((b**2 + c**2 - a**2)/(2*b*c)))
-    B = math.degrees(math.acos((a**2 + c**2 - b**2)/(2*a*c)))
-    C = 180 - (A+B)
-    resultado["ângulos"] = {"A": round(A,2), "B": round(B,2), "C": round(C,2)}
+    resultado = {
+        "perímetro": round(perimetro,4),
+        "área": round(area,4)
+    }
 
-    if abs(a-b)<1e-6 and abs(b-c)<1e-6:
-        resultado["classificação_lados"] = "equilátero"
-    elif abs(a-b)<1e-6 or abs(b-c)<1e-6 or abs(a-c)<1e-6:
-        resultado["classificação_lados"] = "isósceles"
-    else:
-        resultado["classificação_lados"] = "escaleno"
-
-    if any(abs(x-90) < 1e-3 for x in [A,B,C]):
-        resultado["classificação_ângulos"] = "retângulo"
-    elif all(x < 90 for x in [A,B,C]):
-        resultado["classificação_ângulos"] = "acutângulo"
-    else:
-        resultado["classificação_ângulos"] = "obtusângulo"
-
-    return resultado
+    return resultado, explicacao
 
 def circulo(r, theta=None):
     if not r or r <= 0:
-        return {"erro": "Raio deve ser positivo!"}
-    resultado = {}
-    resultado["área"] = round(math.pi * r**2, 4)
-    resultado["circunferência"] = round(2*math.pi*r, 4)
+        return {"erro": "Raio deve ser positivo!"}, ""
+
+    area = math.pi * r**2
+    circ = 2*math.pi*r
+    explicacao = f"""⚪ Círculo
+Área = πr² = π*{r}² = {area:.4f}
+Circunferência = 2πr = 2π*{r} = {circ:.4f}
+"""
+
+    resultado = {
+        "área": round(area,4),
+        "circunferência": round(circ,4)
+    }
+
     if theta:
         arco = 2*math.pi*r*(theta/360)
         setor = math.pi*r**2*(theta/360)
-        resultado["arco"] = round(arco, 4)
-        resultado["setor"] = round(setor, 4)
-    return resultado
+        resultado["arco"] = round(arco,4)
+        resultado["setor"] = round(setor,4)
+        explicacao += f"Arco = 2πr*(θ/360) = {arco:.4f}\nSetor = πr²*(θ/360) = {setor:.4f}\n"
+
+    return resultado, explicacao
 
 def quadrado(lado):
     if lado <= 0:
-        return {"erro": "Forneça lado positivo!"}
-    return {"perímetro": 4*lado, "área": lado**2}
+        return {"erro": "Forneça lado positivo!"}, ""
+    per = 4*lado
+    area = lado**2
+    explicacao = f"""⬛ Quadrado
+Perímetro = 4*lado = 4*{lado} = {per}
+Área = lado² = {lado}² = {area}
+"""
+    return {"perímetro": per, "área": area}, explicacao
 
 def retangulo(base, altura):
     if base <= 0 or altura <= 0:
-        return {"erro": "Base e altura devem ser positivos!"}
-    return {"perímetro": 2*(base+altura), "área": base*altura}
+        return {"erro": "Base e altura devem ser positivos!"}, ""
+    per = 2*(base+altura)
+    area = base*altura
+    explicacao = f"""▭ Retângulo
+Perímetro = 2*(b+h) = 2*({base}+{altura}) = {per}
+Área = b*h = {base}*{altura} = {area}
+"""
+    return {"perímetro": per, "área": area}, explicacao
 
 def losango(lado, D, d):
     if lado <= 0 or D <= 0 or d <= 0:
-        return {"erro": "Valores devem ser positivos!"}
+        return {"erro": "Valores devem ser positivos!"}, ""
     area = (D*d)/2
     perimetro = 4*lado
     h = area/D
-    ang_agudo = math.degrees(2*math.atan(d/D))
+    explicacao = f"""⬟ Losango
+Área = (D*d)/2 = ({D}*{d})/2 = {area}
+Perímetro = 4*lado = 4*{lado} = {perimetro}
+Altura = área/Diagonal maior = {area}/{D} = {h:.4f}
+"""
     return {
         "área": round(area,4),
         "perímetro": round(perimetro,4),
-        "altura": round(h,4),
-        "ângulos": {"agudo": round(ang_agudo,2), "obtuso": round(180-ang_agudo,2)}
-    }
+        "altura": round(h,4)
+    }, explicacao
 
 def paralelogramo(base, lado, altura=None, angulo=None):
     if base <= 0 or lado <= 0:
-        return {"erro": "Base e lado devem ser positivos!"}
+        return {"erro": "Base e lado devem ser positivos!"}, ""
     resultado = {"perímetro": round(2*(base+lado),4)}
+    explicacao = f"▱ Paralelogramo\nPerímetro = 2*(base+lado) = 2*({base}+{lado}) = {2*(base+lado)}\n"
     if altura:
-        resultado["área"] = round(base*altura,4)
+        area = base*altura
+        resultado["área"] = round(area,4)
+        explicacao += f"Área = base*altura = {base}*{altura} = {area}\n"
     elif angulo:
         ang_rad = math.radians(angulo)
         area = base*lado*math.sin(ang_rad)
         resultado["área"] = round(area,4)
-    return resultado
+        explicacao += f"Área = base*lado*sin(ângulo) = {base}*{lado}*sin({angulo}) = {area:.4f}\n"
+    return resultado, explicacao
 
 def trapezio(B, b, l1, l2, h=None):
     if B <= 0 or b <= 0 or l1 <= 0 or l2 <= 0:
-        return {"erro": "Todos os lados devem ser positivos!"}
-    resultado = {"perímetro": round(B+b+l1+l2,4)}
+        return {"erro": "Todos os lados devem ser positivos!"}, ""
+    perimetro = B+b+l1+l2
+    resultado = {"perímetro": round(perimetro,4)}
+    explicacao = f"""Trapézio
+Perímetro = B+b+l1+l2 = {B}+{b}+{l1}+{l2} = {perimetro}
+"""
     if h:
         area = ((B+b)*h)/2
         resultado["área"] = round(area,4)
-    return resultado
+        explicacao += f"Área = ((B+b)*h)/2 = (({B}+{b})*{h})/2 = {area}\n"
+    return resultado, explicacao
 
 def poligono(n, lado=None, R=None):
     if n < 5 or n > 10:
-        return {"erro": "Número de lados deve estar entre 5 e 10!"}
-    perimetro, area, apotema = None, None, None
+        return {"erro": "Número de lados deve estar entre 5 e 10!"}, ""
     if lado:
         perimetro = n*lado
         apotema = lado/(2*math.tan(math.pi/n))
         area = (perimetro*apotema)/2
+        explicacao = f"""Polígono Regular {n} lados
+Perímetro = n*lado = {n}*{lado} = {perimetro}
+Apótema = lado / (2*tan(π/n)) = {lado}/(2*tan(π/{n})) = {apotema:.4f}
+Área = (perímetro*apótema)/2 = ({perimetro}*{apotema:.4f})/2 = {area:.4f}
+"""
     elif R:
         perimetro = 2*n*R*math.sin(math.pi/n)
         apotema = R*math.cos(math.pi/n)
         area = (perimetro*apotema)/2
+        explicacao = f"""Polígono Regular {n} lados (usando raio)
+Perímetro = 2*n*R*sin(π/n) = 2*{n}*{R}*sin(π/{n}) = {perimetro:.4f}
+Apótema = R*cos(π/n) = {R}*cos(π/{n}) = {apotema:.4f}
+Área = (perímetro*apótema)/2 = ({perimetro:.4f}*{apotema:.4f})/2 = {area:.4f}
+"""
     else:
-        return {"erro": "Forneça lado ou raio circunscrito."}
-    return {"perímetro": round(perimetro,4), "área": round(area,4), "apotema": round(apotema,4)}
+        return {"erro": "Forneça lado ou raio circunscrito."}, ""
+
+    return {"perímetro": round(perimetro,4), "área": round(area,4), "apotema": round(apotema,4)}, explicacao
 
 # =========================================================
 # Função de Plotagem
@@ -218,7 +249,7 @@ def plot_figura(tipo, **params):
     st.pyplot(fig)
 
 # =========================================================
-# Interface Streamlit – Parte 1 (com plots)
+# Interface Streamlit – Parte 1 (com plots + explicações)
 # =========================================================
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "Triângulo", "Círculo", "Quadrado", "Retângulo", "Losango", "Paralelogramo", "Trapézio", "Polígono Regular"
@@ -230,8 +261,10 @@ with tab1:
     b = entrada_numero("Lado b", chave="tri_b")
     c = entrada_numero("Lado c", chave="tri_c")
     if st.button("Calcular Triângulo"):
-        resultado = triangulo_master(a, b, c)
+        resultado, explicacao = triangulo_master(a, b, c)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura("triângulo", a=a, b=b, c=c)
 
@@ -240,8 +273,10 @@ with tab2:
     r = entrada_numero("Raio", chave="circ_r")
     theta = entrada_numero("Ângulo θ (graus, opcional)", chave="circ_theta")
     if st.button("Calcular Círculo"):
-        resultado = circulo(r, theta if theta else None)
+        resultado, explicacao = circulo(r, theta if theta else None)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura("círculo", r=r)
 
@@ -249,8 +284,10 @@ with tab3:
     st.header("⬛ Quadrado")
     lado = entrada_numero("Lado", chave="quad_lado")
     if st.button("Calcular Quadrado"):
-        resultado = quadrado(lado)
+        resultado, explicacao = quadrado(lado)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura("quadrado", lado=lado)
 
@@ -259,8 +296,10 @@ with tab4:
     base = entrada_numero("Base", chave="ret_base")
     altura = entrada_numero("Altura", chave="ret_alt")
     if st.button("Calcular Retângulo"):
-        resultado = retangulo(base, altura)
+        resultado, explicacao = retangulo(base, altura)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura("retângulo", base=base, altura=altura)
 
@@ -270,8 +309,10 @@ with tab5:
     D = entrada_numero("Diagonal maior", chave="los_D")
     d = entrada_numero("Diagonal menor", chave="los_d")
     if st.button("Calcular Losango"):
-        resultado = losango(lado, D, d)
+        resultado, explicacao = losango(lado, D, d)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura("losango", D=D, d=d)
 
@@ -281,8 +322,10 @@ with tab6:
     lado = entrada_numero("Lado", chave="par_lado")
     angulo = entrada_numero("Ângulo (graus, opcional)", chave="par_ang")
     if st.button("Calcular Paralelogramo"):
-        resultado = paralelogramo(base, lado, angulo=angulo if angulo else 60)
+        resultado, explicacao = paralelogramo(base, lado, angulo=angulo if angulo else 60)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura("paralelogramo", base=base, lado=lado, angulo=angulo if angulo else 60)
 
@@ -294,8 +337,10 @@ with tab7:
     l2 = entrada_numero("Lado 2", chave="trap_l2")
     h = entrada_numero("Altura (opcional)", chave="trap_h")
     if st.button("Calcular Trapézio"):
-        resultado = trapezio(B, b, l1, l2, h if h else None)
+        resultado, explicacao = trapezio(B, b, l1, l2, h if h else None)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado and h:
             plot_figura("trapézio", B=B, b=b, h=h)
 
@@ -305,8 +350,10 @@ with tab8:
     lado = entrada_numero("Lado (opcional)", chave="pol_lado")
     R = entrada_numero("Raio circunscrito (opcional)", chave="pol_R")
     if st.button("Calcular Polígono"):
-        resultado = poligono(n, lado if lado else None, R if R else None)
+        resultado, explicacao = poligono(n, lado if lado else None, R if R else None)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             R_plot = R if R else lado
             plot_figura("polígono", n=n, R=R_plot)
