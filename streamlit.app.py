@@ -732,18 +732,15 @@ with tab14:
         if "erro" not in resultado: plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
 
 # =========================================================
-# Funções de Cálculo – 4D
-# =========================================================
-# =========================================================
 # Funções de Cálculo – 4D (Policoros)
 # =========================================================
 def simplex_4d(lado):
     if not lado or lado <= 0:
         return {"erro": "Forneça lado > 0"}, ""
 
-    # Fórmulas conhecidas
     hipervolume = (math.sqrt(5)/96) * (lado**4)
-    area_hipersuperficie = (math.sqrt(3)/2) * (lado**3) * 5  # 5 tetraedros
+    area_hipersuperficie = (math.sqrt(3)/2) * (lado**3) * 5
+
     explicacao = f"""🔺 Simplexo 4D (5-célula)
 Hipervolume = (√5/96)*a⁴ = {hipervolume:.4f}
 Área da hipersuperfície = 5*(√3/2)*a³ = {area_hipersuperficie:.4f}
@@ -780,7 +777,6 @@ def sixteen_cell(lado):
     if not lado or lado <= 0:
         return {"erro": "Forneça lado > 0"}, ""
 
-    # 16-cell é dual do tesseract
     hipervolume = (2/3) * (lado**4)
     area_hipersuperficie = 16 * (math.sqrt(3)/4) * (lado**3)
 
@@ -799,7 +795,6 @@ def twentyfour_cell(lado):
     if not lado or lado <= 0:
         return {"erro": "Forneça lado > 0"}, ""
 
-    # Volume e área conhecidos
     hipervolume = (2/3) * (lado**4) * math.sqrt(2)
     area_hipersuperficie = 24 * (math.sqrt(3)/2) * (lado**3)
 
@@ -831,9 +826,7 @@ Hipervolume = (1/2)*π²*r⁴ = {hipervolume:.4f}
         "área_hipersuperfície": round(area_hipersuperficie,4)
     }, explicacao
 
-# =========================================================
-# Funções de Plotagem 4D (interativas com Plotly)
-# =========================================================
+
 # =========================================================
 # Plotagem Policoros 4D → 3D
 # =========================================================
@@ -858,52 +851,41 @@ def plot_poliedro_4d(vertices4d, edges, color="blue"):
 def plot_figura_4d(tipo, **params):
     if tipo == "tesseract":
         lado = params.get("lado",1)
-        # Vértices
         vertices4d = [(x,y,z,w) for x in [0,lado] for y in [0,lado] for z in [0,lado] for w in [0,lado]]
-        # Arestas
-        edges = []
-        for i,v1 in enumerate(vertices4d):
-            for j,v2 in enumerate(vertices4d):
-                if sum(a!=b for a,b in zip(v1,v2)) == 1:
-                    edges.append((i,j))
+        edges = [(i,j) for i,v1 in enumerate(vertices4d) for j,v2 in enumerate(vertices4d) if sum(a!=b for a,b in zip(v1,v2))==1]
         plot_poliedro_4d(vertices4d, edges, "blue")
 
     elif tipo == "simplex":
-        lado = params.get("lado",1)
-        # Vértices de um 5-célula em 4D
         vertices4d = [
-            (1,1,1,-1/ math.sqrt(5)),
-            (1,-1,-1,-1/ math.sqrt(5)),
-            (-1,1,-1,-1/ math.sqrt(5)),
-            (-1,-1,1,-1/ math.sqrt(5)),
-            (0,0,0, math.sqrt(5)-1/ math.sqrt(5))
+            (1,1,1,-1/math.sqrt(5)),
+            (1,-1,-1,-1/math.sqrt(5)),
+            (-1,1,-1,-1/math.sqrt(5)),
+            (-1,-1,1,-1/math.sqrt(5)),
+            (0,0,0, math.sqrt(5)-1/math.sqrt(5))
         ]
-        # Arestas = todos pares
         edges = [(i,j) for i in range(len(vertices4d)) for j in range(i+1,len(vertices4d))]
         plot_poliedro_4d(vertices4d, edges, "red")
 
     elif tipo == "sixteen":
         lado = params.get("lado",1)
-        vertices4d = [
-            (±lado,0,0,0), (0,±lado,0,0), (0,0,±lado,0), (0,0,0,±lado)
-        ]
-        vertices4d = [(x,y,z,w) for x in [-lado,lado] for y in [0] for z in [0] for w in [0]] + \
-                     [(x,y,z,w) for x in [0] for y in [-lado,lado] for z in [0] for w in [0]] + \
-                     [(x,y,z,w) for x in [0] for y in [0] for z in [-lado,lado] for w in [0]] + \
-                     [(x,y,z,w) for x in [0] for y in [0] for z in [0] for w in [-lado,lado]]
-        # Arestas: conectam vértices ortogonais
+        vertices4d = []
+        for i in range(4):
+            for s in [-lado, lado]:
+                coord = [0,0,0,0]
+                coord[i] = s
+                vertices4d.append(tuple(coord))
         edges = []
         for i,v1 in enumerate(vertices4d):
             for j,v2 in enumerate(vertices4d):
-                if i<j and sum(1 for a,b in zip(v1,v2) if a!=b)!=0:
-                    edges.append((i,j))
+                if i<j:
+                    dist = math.sqrt(sum((a-b)**2 for a,b in zip(v1,v2)))
+                    if abs(dist - math.sqrt(2)*lado) < 1e-6:
+                        edges.append((i,j))
         plot_poliedro_4d(vertices4d, edges, "green")
 
     elif tipo == "twentyfour":
-        lado = params.get("lado",1)
-        # Vértices (±1,±1,0,0) permutados
-        vertices4d = []
         vals = [-1,1]
+        vertices4d = []
         for i in range(4):
             for j in range(i+1,4):
                 for s1 in vals:
@@ -912,7 +894,6 @@ def plot_figura_4d(tipo, **params):
                         coord[i] = s1
                         coord[j] = s2
                         vertices4d.append(tuple(coord))
-        # Arestas: dist 4D = √2
         edges = []
         for i,v1 in enumerate(vertices4d):
             for j,v2 in enumerate(vertices4d):
@@ -934,37 +915,6 @@ def plot_figura_4d(tipo, **params):
         st.plotly_chart(fig, use_container_width=True)
 
 
-
-# =========================================================
-# Funções de Plotagem Topologia (interativas com Plotly)
-# =========================================================
-def plot_figura_topologia(tipo, **params):
-    if tipo == "mobius":
-        u = np.linspace(0,2*np.pi,60)
-        v = np.linspace(-0.5,0.5,20)
-        U,V = np.meshgrid(u,v)
-        X = (1+V*np.cos(U/2))*np.cos(U)
-        Y = (1+V*np.cos(U/2))*np.sin(U)
-        Z = V*np.sin(U/2)
-        fig = go.Figure(data=[go.Surface(x=X,y=Y,z=Z,colorscale="Plasma",opacity=0.8)])
-        fig.update_layout(scene=dict(aspectmode="data"))
-        st.plotly_chart(fig, use_container_width=True)
-
-    elif tipo == "klein":
-        u = np.linspace(0,2*np.pi,60)
-        v = np.linspace(0,2*np.pi,60)
-        U,V = np.meshgrid(u,v)
-        X = (2+np.cos(U/2)*np.sin(V)-np.sin(U/2)*np.sin(2*V))*np.cos(U)
-        Y = (2+np.cos(U/2)*np.sin(V)-np.sin(U/2)*np.sin(2*V))*np.sin(U)
-        Z = np.sin(U/2)*np.sin(V)+np.cos(U/2)*np.sin(2*V)
-        fig = go.Figure(data=[go.Surface(x=X,y=Y,z=Z,colorscale="Cividis",opacity=0.8)])
-        fig.update_layout(scene=dict(aspectmode="data"))
-        st.plotly_chart(fig, use_container_width=True)
-
-
-# =========================================================
-# Interface Streamlit – Parte 3 (4D)
-# =========================================================
 # =========================================================
 # Interface Streamlit – Parte 3 (4D)
 # =========================================================
@@ -980,7 +930,7 @@ with tab15:
         resultado, explicacao = simplex_4d(lado)
         st.write(resultado)
         if explicacao: st.code(explicacao, language="")
-        # TODO: plot_figura_4d("simplex") se implementarmos a projeção
+        plot_figura_4d("simplex", lado=lado)
 
 with tab16:
     st.header("🔷 8-célula (Tesseract)")
@@ -999,6 +949,8 @@ with tab17:
         resultado, explicacao = sixteen_cell(lado)
         st.write(resultado)
         if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado:
+            plot_figura_4d("sixteen", lado=lado)
 
 with tab18:
     st.header("🔷 24-célula")
@@ -1007,6 +959,8 @@ with tab18:
         resultado, explicacao = twentyfour_cell(lado)
         st.write(resultado)
         if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado:
+            plot_figura_4d("twentyfour", lado=lado)
 
 with tab19:
     st.header("⚪ Hiperesfera")
@@ -1018,17 +972,3 @@ with tab19:
         if "erro" not in resultado:
             plot_figura_4d("hiperesfera", r=r)
 
-# =========================================================
-# Interface Streamlit – Parte 4 (Topologia)
-# =========================================================
-tab20, tab21 = st.tabs(["Faixa de Möbius", "Garrafa de Klein"])
-
-with tab20:
-    st.header("♾️ Faixa de Möbius")
-    if st.button("Visualizar Möbius"):
-        plot_figura_topologia("mobius")
-
-with tab21:
-    st.header("🍶 Garrafa de Klein")
-    if st.button("Visualizar Klein"):
-        plot_figura_topologia("klein")
