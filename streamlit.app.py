@@ -1,6 +1,7 @@
 from utils import entrada_numero
 import streamlit as st
 import math
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Calculadora Geométrica", layout="wide")
 
@@ -8,155 +9,99 @@ st.title("📐 Calculadora Geométrica")
 st.write("Escolha a figura geométrica e insira os parâmetros para calcular.")
 
 # =========================================================
-# Funções de cálculo
+# Função de Plotagem
 # =========================================================
+def plot_figura(tipo, **params):
+    fig, ax = plt.subplots()
 
-# -----------------------------
-# Triângulo (apenas lados)
-# -----------------------------
-def triangulo_master(a=None, b=None, c=None):
-    if not (a and b and c):
-        return {"erro": "Forneça os 3 lados."}
-    if not (a+b>c and a+c>b and b+c>a):
-        return {"erro": "Triângulo inválido."}
+    if tipo == "círculo":
+        r = params.get("r", 1)
+        circ = plt.Circle((0,0), r, fill=False, color="blue")
+        ax.add_patch(circ)
+        ax.set_aspect("equal")
+        ax.set_xlim(-r*1.2, r*1.2)
+        ax.set_ylim(-r*1.2, r*1.2)
 
-    resultado = {}
-    perimetro = a+b+c
-    s = perimetro/2
-    area = math.sqrt(s*(s-a)*(s-b)*(s-c))
-    resultado["perímetro"] = round(perimetro,4)
-    resultado["área"] = round(area,4)
+    elif tipo == "quadrado":
+        lado = params.get("lado", 1)
+        square = plt.Rectangle((-lado/2,-lado/2), lado, lado, fill=False, color="green")
+        ax.add_patch(square)
+        ax.set_aspect("equal")
+        ax.set_xlim(-lado, lado)
+        ax.set_ylim(-lado, lado)
 
-    h_a = (2*area)/a
-    h_b = (2*area)/b
-    h_c = (2*area)/c
-    resultado["alturas"] = {"h_a": round(h_a,4), "h_b": round(h_b,4), "h_c": round(h_c,4)}
+    elif tipo == "retângulo":
+        base = params.get("base", 1)
+        altura = params.get("altura", 1)
+        rect = plt.Rectangle((-base/2,-altura/2), base, altura, fill=False, color="orange")
+        ax.add_patch(rect)
+        ax.set_aspect("equal")
+        ax.set_xlim(-base, base)
+        ax.set_ylim(-altura, altura)
 
-    A = math.degrees(math.acos((b**2 + c**2 - a**2)/(2*b*c)))
-    B = math.degrees(math.acos((a**2 + c**2 - b**2)/(2*a*c)))
-    C = 180 - (A+B)
-    resultado["ângulos"] = {"A": round(A,2), "B": round(B,2), "C": round(C,2)}
+    elif tipo == "triângulo":
+        a, b, c = params.get("a"), params.get("b"), params.get("c")
+        # coloca lado a na base
+        xA, yA = 0, 0
+        xB, yB = a, 0
+        cos_gamma = (a**2 + b**2 - c**2)/(2*a*b)
+        cos_gamma = max(min(cos_gamma,1),-1)  # evitar erro numérico
+        sin_gamma = (1 - cos_gamma**2)**0.5
+        xC, yC = b*cos_gamma, b*sin_gamma
+        coords = [(xA,yA), (xB,yB), (xC,yC)]
+        poly = plt.Polygon(coords, fill=False, color="red")
+        ax.add_patch(poly)
+        ax.set_aspect("equal")
+        ax.set_xlim(min(xA,xB,xC)-1, max(xA,xB,xC)+1)
+        ax.set_ylim(min(yA,yB,yC)-1, max(yA,yB,yC)+1)
 
-    if abs(a-b)<1e-6 and abs(b-c)<1e-6:
-        resultado["classificação_lados"] = "equilátero"
-    elif abs(a-b)<1e-6 or abs(b-c)<1e-6 or abs(a-c)<1e-6:
-        resultado["classificação_lados"] = "isósceles"
-    else:
-        resultado["classificação_lados"] = "escaleno"
+    elif tipo == "losango":
+        D = params.get("D", 2)
+        d = params.get("d", 1)
+        coords = [(0, D/2), (d/2, 0), (0, -D/2), (-d/2, 0)]
+        poly = plt.Polygon(coords, fill=False, color="purple")
+        ax.add_patch(poly)
+        ax.set_aspect("equal")
+        ax.set_xlim(-D, D)
+        ax.set_ylim(-D, D)
 
-    if any(abs(x-90) < 1e-3 for x in [A,B,C]):
-        resultado["classificação_ângulos"] = "retângulo"
-    elif all(x < 90 for x in [A,B,C]):
-        resultado["classificação_ângulos"] = "acutângulo"
-    else:
-        resultado["classificação_ângulos"] = "obtusângulo"
+    elif tipo == "paralelogramo":
+        base = params.get("base", 2)
+        lado = params.get("lado", 1)
+        ang = math.radians(params.get("angulo", 60))
+        coords = [(0,0),(base,0),(base+lado*math.cos(ang), lado*math.sin(ang)),(lado*math.cos(ang),lado*math.sin(ang))]
+        poly = plt.Polygon(coords, fill=False, color="brown")
+        ax.add_patch(poly)
+        ax.set_aspect("equal")
+        ax.set_xlim(-base, base*2)
+        ax.set_ylim(-lado, lado*2)
 
-    return resultado
+    elif tipo == "trapézio":
+        B = params.get("B", 4)
+        b = params.get("b", 2)
+        h = params.get("h", 2)
+        x_offset = (B - b)/2
+        coords = [(0,0),(B,0),(B-x_offset,h),(x_offset,h)]
+        poly = plt.Polygon(coords, fill=False, color="cyan")
+        ax.add_patch(poly)
+        ax.set_aspect("equal")
+        ax.set_xlim(-1, B+1)
+        ax.set_ylim(-1, h+1)
 
+    elif tipo == "polígono":
+        n = params.get("n", 5)
+        R = params.get("R", 1)
+        coords = [(R*math.cos(2*math.pi*i/n), R*math.sin(2*math.pi*i/n)) for i in range(n)]
+        poly = plt.Polygon(coords, fill=False, color="magenta")
+        ax.add_patch(poly)
+        ax.set_aspect("equal")
+        ax.set_xlim(-R*1.2, R*1.2)
+        ax.set_ylim(-R*1.2, R*1.2)
 
-# -----------------------------
-# Círculo (sem corda)
-# -----------------------------
-def circulo(r, theta=None):
-    if not r or r <= 0:
-        return {"erro": "Raio deve ser positivo!"}
-
-    resultado = {}
-    resultado["área"] = round(math.pi * r**2, 4)
-    resultado["circunferência"] = round(2*math.pi*r, 4)
-
-    if theta:
-        arco = 2*math.pi*r*(theta/360)
-        setor = math.pi*r**2*(theta/360)
-        resultado["arco"] = round(arco, 4)
-        resultado["setor"] = round(setor, 4)
-
-    return resultado
-
-
-# -----------------------------
-# Quadrado
-# -----------------------------
-def quadrado(lado):
-    return {"perímetro": 4*lado, "área": lado**2}
-
-
-# -----------------------------
-# Retângulo
-# -----------------------------
-def retangulo(base, altura):
-    return {"perímetro": 2*(base+altura), "área": base*altura}
-
-
-# -----------------------------
-# Losango
-# -----------------------------
-def losango(lado, D, d):
-    if lado <= 0 or D <= 0 or d <= 0:
-        return {"erro": "Valores devem ser positivos!"}
-    area = (D*d)/2
-    perimetro = 4*lado
-    h = area/D
-    ang_agudo = math.degrees(2*math.atan(d/D))
-    return {
-        "área": round(area,4),
-        "perímetro": round(perimetro,4),
-        "altura": round(h,4),
-        "ângulos": {"agudo": round(ang_agudo,2), "obtuso": round(180-ang_agudo,2)}
-    }
-
-
-# -----------------------------
-# Paralelogramo
-# -----------------------------
-def paralelogramo(base, lado, altura=None, angulo=None):
-    if base <= 0 or lado <= 0:
-        return {"erro": "Base e lado devem ser positivos!"}
-    resultado = {"perímetro": round(2*(base+lado),4)}
-    if altura:
-        resultado["área"] = round(base*altura,4)
-    elif angulo:
-        ang_rad = math.radians(angulo)
-        area = base*lado*math.sin(ang_rad)
-        resultado["área"] = round(area,4)
-    return resultado
-
-
-# -----------------------------
-# Trapézio
-# -----------------------------
-def trapezio(B, b, l1, l2, h=None):
-    if B <= 0 or b <= 0 or l1 <= 0 or l2 <= 0:
-        return {"erro": "Todos os lados devem ser positivos!"}
-    resultado = {"perímetro": round(B+b+l1+l2,4)}
-    if h:
-        area = ((B+b)*h)/2
-        resultado["área"] = round(area,4)
-    return resultado
-
-
-# -----------------------------
-# Polígono Regular
-# -----------------------------
-def poligono(n, lado=None, R=None):
-    if n < 5 or n > 10:
-        return {"erro": "Número de lados deve estar entre 5 e 10!"}
-    perimetro, area, apotema = None, None, None
-    if lado:
-        perimetro = n*lado
-        apotema = lado/(2*math.tan(math.pi/n))
-        area = (perimetro*apotema)/2
-    elif R:
-        perimetro = 2*n*R*math.sin(math.pi/n)
-        apotema = R*math.cos(math.pi/n)
-        area = (perimetro*apotema)/2
-    else:
-        return {"erro": "Forneça lado ou raio circunscrito."}
-    return {"perímetro": round(perimetro,4), "área": round(area,4), "apotema": round(apotema,4)}
-
+    st.pyplot(fig)
 
 # =========================================================
-# Interface Streamlit – Parte 1 (com frações)
+# Interface Streamlit – Parte 1 (com plots)
 # =========================================================
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "Triângulo", "Círculo", "Quadrado", "Retângulo", "Losango", "Paralelogramo", "Trapézio", "Polígono Regular"
@@ -168,27 +113,39 @@ with tab1:
     b = entrada_numero("Lado b", chave="tri_b")
     c = entrada_numero("Lado c", chave="tri_c")
     if st.button("Calcular Triângulo"):
-        st.write(triangulo_master(a, b, c))
+        resultado = triangulo_master(a, b, c)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura("triângulo", a=a, b=b, c=c)
 
 with tab2:
     st.header("⚪ Círculo")
     r = entrada_numero("Raio", chave="circ_r")
     theta = entrada_numero("Ângulo θ (graus, opcional)", chave="circ_theta")
     if st.button("Calcular Círculo"):
-        st.write(circulo(r, theta if theta else None))
+        resultado = circulo(r, theta if theta else None)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura("círculo", r=r)
 
 with tab3:
     st.header("⬛ Quadrado")
     lado = entrada_numero("Lado", chave="quad_lado")
     if st.button("Calcular Quadrado"):
-        st.write(quadrado(lado))
+        resultado = quadrado(lado)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura("quadrado", lado=lado)
 
 with tab4:
     st.header("▭ Retângulo")
     base = entrada_numero("Base", chave="ret_base")
     altura = entrada_numero("Altura", chave="ret_alt")
     if st.button("Calcular Retângulo"):
-        st.write(retangulo(base, altura))
+        resultado = retangulo(base, altura)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura("retângulo", base=base, altura=altura)
 
 with tab5:
     st.header("⬟ Losango")
@@ -196,16 +153,21 @@ with tab5:
     D = entrada_numero("Diagonal maior", chave="los_D")
     d = entrada_numero("Diagonal menor", chave="los_d")
     if st.button("Calcular Losango"):
-        st.write(losango(lado, D, d))
+        resultado = losango(lado, D, d)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura("losango", D=D, d=d)
 
 with tab6:
     st.header("▱ Paralelogramo")
     base = entrada_numero("Base", chave="par_base")
     lado = entrada_numero("Lado", chave="par_lado")
-    altura = entrada_numero("Altura (opcional)", chave="par_alt")
     angulo = entrada_numero("Ângulo (graus, opcional)", chave="par_ang")
     if st.button("Calcular Paralelogramo"):
-        st.write(paralelogramo(base, lado, altura if altura else None, angulo if angulo else None))
+        resultado = paralelogramo(base, lado, angulo=angulo if angulo else 60)
+        st.write(resultado)
+        if "erro" not in resultado:
+            plot_figura("paralelogramo", base=base, lado=lado, angulo=angulo if angulo else 60)
 
 with tab7:
     st.header("Trapézio")
@@ -215,7 +177,10 @@ with tab7:
     l2 = entrada_numero("Lado 2", chave="trap_l2")
     h = entrada_numero("Altura (opcional)", chave="trap_h")
     if st.button("Calcular Trapézio"):
-        st.write(trapezio(B, b, l1, l2, h if h else None))
+        resultado = trapezio(B, b, l1, l2, h if h else None)
+        st.write(resultado)
+        if "erro" not in resultado and h:
+            plot_figura("trapézio", B=B, b=b, h=h)
 
 with tab8:
     st.header("Polígono Regular")
@@ -223,7 +188,11 @@ with tab8:
     lado = entrada_numero("Lado (opcional)", chave="pol_lado")
     R = entrada_numero("Raio circunscrito (opcional)", chave="pol_R")
     if st.button("Calcular Polígono"):
-        st.write(poligono(n, lado if lado else None, R if R else None))
+        resultado = poligono(n, lado if lado else None, R if R else None)
+        st.write(resultado)
+        if "erro" not in resultado:
+            R_plot = R if R else lado  # fallback simples
+            plot_figura("polígono", n=n, R=R_plot)
 
 # =========================================================
 # Funções de cálculo – Parte 2
