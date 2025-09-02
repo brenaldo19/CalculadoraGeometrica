@@ -394,56 +394,58 @@ Raio circunscrito = (lado*√3)/2 = {r_out:.4f}
         "raio_circunscrito": round(r_out,4)
     }, explicacao
 
-def paralelepipedo(c, l, h):
-    if c <= 0 or l <= 0 or h <= 0:
-        return {"erro": "Todos os lados devem ser positivos"}, ""
+def plot_figura_3d(tipo, **params):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
 
-    volume = c*l*h
-    area = 2*(c*l + c*h + l*h)
-    diag = math.sqrt(c**2 + l**2 + h**2)
+    if tipo == "paralelepipedo":
+        c = params.get("c", 1)
+        l = params.get("l", 1)
+        h = params.get("h", 1)
 
-    explicacao = f"""📦 Paralelepípedo
-Volume = c*l*h = {c}*{l}*{h} = {volume}
-Área superficial = 2*(cl+ch+lh) = 2*({c}*{l}+{c}*{h}+{l}*{h}) = {area}
-Diagonal espacial = √(c²+l²+h²) = √({c}²+{l}²+{h}²) = {diag:.4f}
-"""
+        # vértices
+        vertices = np.array([
+            [0,0,0], [c,0,0], [c,l,0], [0,l,0],  # base inferior
+            [0,0,h], [c,0,h], [c,l,h], [0,l,h]   # base superior
+        ])
 
-    return {
-        "volume": round(volume,4),
-        "área_superfície": round(area,4),
-        "diagonal_espacial": round(diag,4)
-    }, explicacao
+        # faces (cada face é uma lista de índices dos vértices)
+        faces = [
+            [vertices[j] for j in [0,1,2,3]],  # base inferior
+            [vertices[j] for j in [4,5,6,7]],  # base superior
+            [vertices[j] for j in [0,1,5,4]],
+            [vertices[j] for j in [1,2,6,5]],
+            [vertices[j] for j in [2,3,7,6]],
+            [vertices[j] for j in [3,0,4,7]],
+        ]
 
-def prisma(n, lado, h):
-    if n < 3:
-        return {"erro": "Prisma precisa base com pelo menos 3 lados"}, ""
-    if lado <= 0 or h <= 0:
-        return {"erro": "Lado e altura devem ser positivos"}, ""
+        ax.add_collection3d(Poly3DCollection(faces, facecolors="cyan", linewidths=1, edgecolors="r", alpha=.25))
 
-    perimetro = n*lado
-    apotema = lado/(2*math.tan(math.pi/n))
-    area_base = (perimetro*apotema)/2
-    area_lateral = perimetro*h
-    area_total = 2*area_base + area_lateral
-    volume = area_base*h
+    elif tipo == "prisma":
+        n = params.get("n", 5)
+        lado = params.get("lado", 1)
+        h = params.get("h", 2)
 
-    explicacao = f"""🔺 Prisma Regular {n} lados
-Perímetro base = n*lado = {n}*{lado} = {perimetro}
-Apótema = {lado}/(2*tan(π/{n})) = {apotema:.4f}
-Área base = (perímetro*apótema)/2 = {area_base:.4f}
-Área lateral = perímetro*altura = {perimetro}*{h} = {area_lateral}
-Área total = 2*área base + área lateral = {area_total}
-Volume = área base*altura = {area_base:.4f}*{h} = {volume:.4f}
-"""
+        # raio da circunferência circunscrita da base
+        R = lado / (2*math.sin(math.pi/n))
 
-    return {
-        "perímetro_base": round(perimetro,4),
-        "área_base": round(area_base,4),
-        "apotema_base": round(apotema,4),
-        "área_lateral": round(area_lateral,4),
-        "área_total": round(area_total,4),
-        "volume": round(volume,4)
-    }, explicacao
+        # base inferior e superior
+        base_inf = [(R*math.cos(2*math.pi*i/n), R*math.sin(2*math.pi*i/n), 0) for i in range(n)]
+        base_sup = [(x,y,h) for (x,y,_) in base_inf]
+
+        # faces
+        faces = []
+        faces.append(base_inf)
+        faces.append(base_sup)
+        for i in range(n):
+            faces.append([base_inf[i], base_inf[(i+1)%n], base_sup[(i+1)%n], base_sup[i]])
+
+        ax.add_collection3d(Poly3DCollection(faces, facecolors="lightgreen", linewidths=1, edgecolors="k", alpha=.3))
+
+    # (os outros tipos: cubo, esfera, cilindro, cone, pirâmide já estavam prontos)
+
+    ax.set_box_aspect([1,1,1])
+    st.pyplot(fig)
 
 def cilindro(r, h):
     if r <= 0 or h <= 0:
@@ -671,7 +673,8 @@ with tab9:
         st.write(resultado)
         if explicacao:
             st.code(explicacao, language="")
-        # (plot básico pode ser adicionado futuramente)
+        if "erro" not in resultado:
+            plot_figura_3d("paralelepipedo", c=c, l=l, h=h)
 
 with tab10:
     st.header("🔺 Prisma Regular")
@@ -683,7 +686,8 @@ with tab10:
         st.write(resultado)
         if explicacao:
             st.code(explicacao, language="")
-        # (plot pode vir depois, com base poligonal extrudada)
+        if "erro" not in resultado:
+            plot_figura_3d("prisma", n=n, lado=lado, h=h)
 
 with tab11:
     st.header("🟠 Cilindro")
