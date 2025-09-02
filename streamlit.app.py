@@ -11,40 +11,11 @@ st.write("Escolha a figura geométrica e insira os parâmetros para calcular.")
 # =========================================================
 
 # -----------------------------
-# Triângulo
+# Triângulo (apenas lados)
 # -----------------------------
-def triangulo_master(a=None, b=None, c=None, A=None, B=None, C=None, h=None):
-    # Reconstrução de lados
-    if a and b and not c and not (A or B or C):
-        c = math.sqrt(a**2 + b**2)
-    if a and c and not b:
-        if c > a:
-            b = math.sqrt(c**2 - a**2)
-    if b and c and not a:
-        if c > b:
-            a = math.sqrt(c**2 - b**2)
-
-    if a and b and C and not c:
-        C_rad = math.radians(C)
-        c = math.sqrt(a**2 + b**2 - 2*a*b*math.cos(C_rad))
-    if a and c and B and not b:
-        B_rad = math.radians(B)
-        b = math.sqrt(a**2 + c**2 - 2*a*c*math.cos(B_rad))
-    if b and c and A and not a:
-        A_rad = math.radians(A)
-        a = math.sqrt(b**2 + c**2 - 2*b*c*math.cos(A_rad))
-
-    if a and A and B and not b:
-        A_rad = math.radians(A)
-        B_rad = math.radians(B)
-        b = a * math.sin(B_rad)/math.sin(A_rad)
-    if a and A and C and not c:
-        A_rad = math.radians(A)
-        C_rad = math.radians(C)
-        c = a * math.sin(C_rad)/math.sin(A_rad)
-
+def triangulo_master(a=None, b=None, c=None):
     if not (a and b and c):
-        return {"erro": "Não foi possível determinar os 3 lados."}
+        return {"erro": "Forneça os 3 lados."}
     if not (a+b>c and a+c>b and b+c>a):
         return {"erro": "Triângulo inválido."}
 
@@ -83,9 +54,9 @@ def triangulo_master(a=None, b=None, c=None, A=None, B=None, C=None, h=None):
 
 
 # -----------------------------
-# Círculo
+# Círculo (sem corda)
 # -----------------------------
-def circulo(r, theta=None, corda=None):
+def circulo(r, theta=None):
     if r <= 0:
         return {"erro": "Raio deve ser positivo!"}
 
@@ -98,10 +69,6 @@ def circulo(r, theta=None, corda=None):
         setor = math.pi*r**2*(theta/360)
         resultado["arco"] = round(arco, 4)
         resultado["setor"] = round(setor, 4)
-        if corda:
-            h = r - math.sqrt(r**2 - (corda/2)**2)
-            segmento = (math.pi*r**2*(theta/360)) - (corda*(r-h)/2)
-            resultado["segmento"] = round(segmento, 4)
 
     return resultado
 
@@ -188,10 +155,10 @@ def poligono(n, lado=None, R=None):
 
 
 # =========================================================
-# Interface Streamlit – Parte 1
+# Interface Streamlit – Parte 1 (ajustada)
 # =========================================================
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "Triângulo", "Círculo", "Quadrado", "Retângulo", "Losango", "Paralelogramo", "Trapézio/Polígono"
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    "Triângulo", "Círculo", "Quadrado", "Retângulo", "Losango", "Paralelogramo", "Trapézio", "Polígono Regular"
 ])
 
 with tab1:
@@ -199,19 +166,15 @@ with tab1:
     a = st.number_input("Lado a", min_value=0.0, step=0.1)
     b = st.number_input("Lado b", min_value=0.0, step=0.1)
     c = st.number_input("Lado c", min_value=0.0, step=0.1)
-    A = st.number_input("Ângulo A (graus)", min_value=0.0, step=0.1)
-    B = st.number_input("Ângulo B (graus)", min_value=0.0, step=0.1)
-    C = st.number_input("Ângulo C (graus)", min_value=0.0, step=0.1)
     if st.button("Calcular Triângulo"):
-        st.write(triangulo_master(a or None, b or None, c or None, A or None, B or None, C or None))
+        st.write(triangulo_master(a or None, b or None, c or None))
 
 with tab2:
     st.header("⚪ Círculo")
     r = st.number_input("Raio", min_value=0.0, step=0.1)
     theta = st.number_input("Ângulo θ (opcional)", min_value=0.0, step=0.1)
-    corda = st.number_input("Corda (opcional)", min_value=0.0, step=0.1)
     if st.button("Calcular Círculo"):
-        st.write(circulo(r, theta if theta>0 else None, corda if corda>0 else None))
+        st.write(circulo(r, theta if theta>0 else None))
 
 with tab3:
     st.header("⬛ Quadrado")
@@ -244,20 +207,23 @@ with tab6:
         st.write(paralelogramo(base, lado, altura if altura>0 else None, angulo if angulo>0 else None))
 
 with tab7:
-    st.header("Trapézio e Polígono Regular")
-    B = st.number_input("Base maior (Trapézio)", min_value=0.0, step=0.1)
-    b = st.number_input("Base menor (Trapézio)", min_value=0.0, step=0.1)
-    l1 = st.number_input("Lado 1 (Trapézio)", min_value=0.0, step=0.1)
-    l2 = st.number_input("Lado 2 (Trapézio)", min_value=0.0, step=0.1)
-    h = st.number_input("Altura (Trapézio, opcional)", min_value=0.0, step=0.1)
+    st.header("Trapézio")
+    B = st.number_input("Base maior", min_value=0.0, step=0.1)
+    b = st.number_input("Base menor", min_value=0.0, step=0.1)
+    l1 = st.number_input("Lado 1", min_value=0.0, step=0.1)
+    l2 = st.number_input("Lado 2", min_value=0.0, step=0.1)
+    h = st.number_input("Altura (opcional)", min_value=0.0, step=0.1)
     if st.button("Calcular Trapézio"):
         st.write(trapezio(B, b, l1, l2, h if h>0 else None))
 
+with tab8:
+    st.header("Polígono Regular")
     n = st.number_input("Número de lados (5 a 10)", min_value=5, max_value=10, step=1)
-    lado = st.number_input("Lado (Polígono, opcional)", min_value=0.0, step=0.1, key="pol_lado")
-    R = st.number_input("Raio circunscrito (Polígono, opcional)", min_value=0.0, step=0.1, key="pol_R")
+    lado = st.number_input("Lado (opcional)", min_value=0.0, step=0.1, key="pol_lado")
+    R = st.number_input("Raio circunscrito (opcional)", min_value=0.0, step=0.1, key="pol_R")
     if st.button("Calcular Polígono"):
         st.write(poligono(n, lado if lado>0 else None, R if R>0 else None))
+
 # =========================================================
 # Funções de cálculo – Parte 2
 # =========================================================
