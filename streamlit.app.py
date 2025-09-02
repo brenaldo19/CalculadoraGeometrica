@@ -642,8 +642,9 @@ def plot_figura_3d(tipo, **params):
 
     st.pyplot(fig)
 
+
 # =========================================================
-# Interface Streamlit – Parte 2 (com plots)
+# Interface Streamlit – Parte 2 (com explicações + plots)
 # =========================================================
 tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs([
     "Cubo", "Paralelepípedo", "Prisma", "Cilindro", "Cone", "Esfera", "Pirâmide"
@@ -653,8 +654,10 @@ with tab8:
     st.header("⬛ Cubo")
     lado = entrada_numero("Lado", chave="cubo_lado")
     if st.button("Calcular Cubo"):
-        resultado = cubo(lado)
+        resultado, explicacao = cubo(lado)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura_3d("cubo", lado=lado)
 
@@ -664,9 +667,11 @@ with tab9:
     l = entrada_numero("Largura", chave="par_l")
     h = entrada_numero("Altura", chave="par_h")
     if st.button("Calcular Paralelepípedo"):
-        resultado = paralelepipedo(c, l, h)
+        resultado, explicacao = paralelepipedo(c, l, h)
         st.write(resultado)
-        # (plot básico seria como um cubo esticado, podemos adicionar depois)
+        if explicacao:
+            st.code(explicacao, language="")
+        # (plot básico pode ser adicionado futuramente)
 
 with tab10:
     st.header("🔺 Prisma Regular")
@@ -674,17 +679,21 @@ with tab10:
     lado = entrada_numero("Lado da base", chave="prisma_lado")
     h = entrada_numero("Altura", chave="prisma_alt")
     if st.button("Calcular Prisma"):
-        resultado = prisma(n, lado, h)
+        resultado, explicacao = prisma(n, lado, h)
         st.write(resultado)
-        # (plot pode vir depois)
+        if explicacao:
+            st.code(explicacao, language="")
+        # (plot pode vir depois, com base poligonal extrudada)
 
 with tab11:
     st.header("🟠 Cilindro")
     r = entrada_numero("Raio", chave="cil_r")
     h = entrada_numero("Altura", chave="cil_h")
     if st.button("Calcular Cilindro"):
-        resultado = cilindro(r, h)
+        resultado, explicacao = cilindro(r, h)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura_3d("cilindro", r=r, h=h)
 
@@ -693,8 +702,10 @@ with tab12:
     r = entrada_numero("Raio", chave="cone_r")
     h = entrada_numero("Altura", chave="cone_h")
     if st.button("Calcular Cone"):
-        resultado = cone(r, h)
+        resultado, explicacao = cone(r, h)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura_3d("cone", r=r, h=h)
 
@@ -703,8 +714,10 @@ with tab13:
     r = entrada_numero("Raio", chave="esf_r")
     h = entrada_numero("Altura da calota (opcional)", chave="esf_h")
     if st.button("Calcular Esfera"):
-        resultado = esfera(r, h if h else None)
+        resultado, explicacao = esfera(r, h if h else None)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura_3d("esfera", r=r)
 
@@ -714,7 +727,9 @@ with tab14:
     lado = entrada_numero("Lado da base", chave="pir_lado")
     h = entrada_numero("Altura", chave="pir_h")
     if st.button("Calcular Pirâmide"):
-        resultado = piramide(n, lado, h)
+        resultado, explicacao = piramide(n, lado, h)
         st.write(resultado)
+        if explicacao:
+            st.code(explicacao, language="")
         if "erro" not in resultado:
             plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
