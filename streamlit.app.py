@@ -391,51 +391,51 @@ tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs([
 
 with tab8:
     st.header("⬛ Cubo")
-    lado = entrada_numero("Lado", min_value=0.0, step=0.1, key="cubo_lado")
+    lado = entrada_numero("Lado", chave="cubo_lado")
     if st.button("Calcular Cubo"):
         st.write(cubo(lado))
 
 with tab9:
     st.header("📦 Paralelepípedo")
-    c = entrada_numero("Comprimento", min_value=0.0, step=0.1)
-    l = entrada_numero("Largura", min_value=0.0, step=0.1)
-    h = entrada_numero("Altura", min_value=0.0, step=0.1)
+    c = entrada_numero("Comprimento", chave="par_c")
+    l = entrada_numero("Largura", chave="par_l")
+    h = entrada_numero("Altura", chave="par_h")
     if st.button("Calcular Paralelepípedo"):
         st.write(paralelepipedo(c, l, h))
 
 with tab10:
     st.header("🔺 Prisma Regular")
-    n = st.number_input("Número de lados da base", min_value=3, step=1)
-    lado = entrada_numero("Lado da base", min_value=0.0, step=0.1, key="prisma_lado")
-    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="prisma_alt")
+    n = st.number_input("Número de lados da base", min_value=3, step=1, key="prisma_n")
+    lado = entrada_numero("Lado da base", chave="prisma_lado")
+    h = entrada_numero("Altura", chave="prisma_alt")
     if st.button("Calcular Prisma"):
         st.write(prisma(n, lado, h))
 
 with tab11:
     st.header("🟠 Cilindro")
-    r = entrada_numero("Raio", min_value=0.0, step=0.1, key="cil_r")
-    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="cil_h")
+    r = entrada_numero("Raio", chave="cil_r")
+    h = entrada_numero("Altura", chave="cil_h")
     if st.button("Calcular Cilindro"):
         st.write(cilindro(r, h))
 
 with tab12:
     st.header("🔻 Cone")
-    r = entrada_numero("Raio", min_value=0.0, step=0.1, key="cone_r")
-    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="cone_h")
+    r = entrada_numero("Raio", chave="cone_r")
+    h = entrada_numero("Altura", chave="cone_h")
     if st.button("Calcular Cone"):
         st.write(cone(r, h))
 
 with tab13:
     st.header("⚪ Esfera")
-    r = entrada_numero("Raio", min_value=0.0, step=0.1, key="esf_r")
-    h = entrada_numero("Altura da calota (opcional)", min_value=0.0, step=0.1)
+    r = entrada_numero("Raio", chave="esf_r")
+    h = entrada_numero("Altura da calota (opcional)", chave="esf_h")
     if st.button("Calcular Esfera"):
-        st.write(esfera(r, h if h>0 else None))
+        st.write(esfera(r, h if h else None))
 
 with tab14:
     st.header("⛏️ Pirâmide Regular")
-    n = st.number_input("Número de lados da base (3 a 6)", min_value=3, max_value=6, step=1)
-    lado = entrada_numero("Lado da base", min_value=0.0, step=0.1, key="pir_lado")
-    h = entrada_numero("Altura", min_value=0.0, step=0.1, key="pir_h")
+    n = st.number_input("Número de lados da base (3 a 6)", min_value=3, max_value=6, step=1, key="pir_n")
+    lado = entrada_numero("Lado da base", chave="pir_lado")
+    h = entrada_numero("Altura", chave="pir_h")
     if st.button("Calcular Pirâmide"):
         st.write(piramide(n, lado, h))
