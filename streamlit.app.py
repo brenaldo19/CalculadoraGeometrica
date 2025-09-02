@@ -729,3 +729,105 @@ with tab14:
         st.write(resultado)
         if explicacao: st.code(explicacao, language="")
         if "erro" not in resultado: plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
+
+# =========================================================
+# Funções de Plotagem 4D
+# =========================================================
+def plot_figura_4d(tipo, **params):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    if tipo == "tesseract":
+        lado = params.get("lado", 1)
+        # Vértices 4D
+        vertices4d = [(x,y,z,w) for x in [0,lado] for y in [0,lado] for z in [0,lado] for w in [0,lado]]
+        # Projeção 4D -> 3D
+        vertices3d = []
+        for (x,y,z,w) in vertices4d:
+            k = 2/(w+2)  # fator de projeção
+            vertices3d.append((x*k,y*k,z*k))
+        # Arestas
+        edges = []
+        for i,v1 in enumerate(vertices4d):
+            for j,v2 in enumerate(vertices4d):
+                if sum(a!=b for a,b in zip(v1,v2)) == 1:
+                    edges.append((vertices3d[i], vertices3d[j]))
+        # Desenho
+        for (p1,p2) in edges:
+            xs,ys,zs = zip(p1,p2)
+            ax.plot(xs,ys,zs,color="blue",alpha=0.6)
+
+    elif tipo == "hiperesfera":
+        r = params.get("r",1)
+        u = np.linspace(0,2*np.pi,30)
+        v = np.linspace(0,np.pi,30)
+        x = r*np.outer(np.cos(u),np.sin(v))
+        y = r*np.outer(np.sin(u),np.sin(v))
+        z = r*np.outer(np.ones_like(u),np.cos(v))
+        ax.plot_wireframe(x,y,z,color="red",alpha=0.5)
+
+    ax.set_box_aspect([1,1,1])
+    st.pyplot(fig)
+
+
+# =========================================================
+# Funções de Plotagem Topologia
+# =========================================================
+def plot_figura_topologia(tipo, **params):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    if tipo == "mobius":
+        u = np.linspace(0,2*np.pi,50)
+        v = np.linspace(-0.5,0.5,10)
+        U,V = np.meshgrid(u,v)
+        X = (1+V*np.cos(U/2))*np.cos(U)
+        Y = (1+V*np.cos(U/2))*np.sin(U)
+        Z = V*np.sin(U/2)
+        ax.plot_surface(X,Y,Z,color="purple",alpha=0.6)
+
+    elif tipo == "klein":
+        u = np.linspace(0,2*np.pi,50)
+        v = np.linspace(0,2*np.pi,50)
+        U,V = np.meshgrid(u,v)
+        X = (2+np.cos(U/2)*np.sin(V)-np.sin(U/2)*np.sin(2*V))*np.cos(U)
+        Y = (2+np.cos(U/2)*np.sin(V)-np.sin(U/2)*np.sin(2*V))*np.sin(U)
+        Z = np.sin(U/2)*np.sin(V)+np.cos(U/2)*np.sin(2*V)
+        ax.plot_surface(X,Y,Z,color="green",alpha=0.6)
+
+    ax.set_box_aspect([1,1,1])
+    st.pyplot(fig)
+
+
+# =========================================================
+# Interface Streamlit – Parte 3 (4D)
+# =========================================================
+tab15, tab16 = st.tabs(["Tesseract (Hipercubo 4D)", "Hiperesfera"])
+
+with tab15:
+    st.header("🔷 Tesseract (Hipercubo 4D)")
+    lado = entrada_numero("Lado", chave="tess_lado")
+    if st.button("Visualizar Tesseract"):
+        plot_figura_4d("tesseract", lado=lado)
+
+with tab16:
+    st.header("⚪ Hiperesfera")
+    r = entrada_numero("Raio", chave="hiper_r")
+    if st.button("Visualizar Hiperesfera"):
+        plot_figura_4d("hiperesfera", r=r)
+
+
+# =========================================================
+# Interface Streamlit – Parte 4 (Topologia)
+# =========================================================
+tab17, tab18 = st.tabs(["Faixa de Möbius", "Garrafa de Klein"])
+
+with tab17:
+    st.header("♾️ Faixa de Möbius")
+    if st.button("Visualizar Möbius"):
+        plot_figura_topologia("mobius")
+
+with tab18:
+    st.header("🍶 Garrafa de Klein")
+    if st.button("Visualizar Klein"):
+        plot_figura_topologia("klein")
