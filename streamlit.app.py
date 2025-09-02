@@ -364,6 +364,9 @@ with tab8:
 # =========================================================
 # Funções de cálculo – Tridimensionais
 # =========================================================
+# =========================================================
+# Funções de cálculo – Tridimensionais
+# =========================================================
 
 def cubo(lado):
     if not lado or lado <= 0:
@@ -394,58 +397,59 @@ Raio circunscrito = (lado*√3)/2 = {r_out:.4f}
         "raio_circunscrito": round(r_out,4)
     }, explicacao
 
-def plot_figura_3d(tipo, **params):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
 
-    if tipo == "paralelepipedo":
-        c = params.get("c", 1)
-        l = params.get("l", 1)
-        h = params.get("h", 1)
+def paralelepipedo(c, l, h):
+    if c <= 0 or l <= 0 or h <= 0:
+        return {"erro": "Todos os lados devem ser positivos"}, ""
 
-        # vértices
-        vertices = np.array([
-            [0,0,0], [c,0,0], [c,l,0], [0,l,0],  # base inferior
-            [0,0,h], [c,0,h], [c,l,h], [0,l,h]   # base superior
-        ])
+    volume = c*l*h
+    area = 2*(c*l + c*h + l*h)
+    diag = math.sqrt(c**2 + l**2 + h**2)
 
-        # faces (cada face é uma lista de índices dos vértices)
-        faces = [
-            [vertices[j] for j in [0,1,2,3]],  # base inferior
-            [vertices[j] for j in [4,5,6,7]],  # base superior
-            [vertices[j] for j in [0,1,5,4]],
-            [vertices[j] for j in [1,2,6,5]],
-            [vertices[j] for j in [2,3,7,6]],
-            [vertices[j] for j in [3,0,4,7]],
-        ]
+    explicacao = f"""📦 Paralelepípedo
+Volume = c*l*h = {c}*{l}*{h} = {volume}
+Área superficial = 2*(cl+ch+lh) = 2*({c}*{l}+{c}*{h}+{l}*{h}) = {area}
+Diagonal espacial = √(c²+l²+h²) = √({c}²+{l}²+{h}²) = {diag:.4f}
+"""
 
-        ax.add_collection3d(Poly3DCollection(faces, facecolors="cyan", linewidths=1, edgecolors="r", alpha=.25))
+    return {
+        "volume": round(volume,4),
+        "área_superfície": round(area,4),
+        "diagonal_espacial": round(diag,4)
+    }, explicacao
 
-    elif tipo == "prisma":
-        n = params.get("n", 5)
-        lado = params.get("lado", 1)
-        h = params.get("h", 2)
 
-        # raio da circunferência circunscrita da base
-        R = lado / (2*math.sin(math.pi/n))
+def prisma(n, lado, h):
+    if n < 3:
+        return {"erro": "Prisma precisa base com pelo menos 3 lados"}, ""
+    if lado <= 0 or h <= 0:
+        return {"erro": "Lado e altura devem ser positivos"}, ""
 
-        # base inferior e superior
-        base_inf = [(R*math.cos(2*math.pi*i/n), R*math.sin(2*math.pi*i/n), 0) for i in range(n)]
-        base_sup = [(x,y,h) for (x,y,_) in base_inf]
+    perimetro = n*lado
+    apotema = lado/(2*math.tan(math.pi/n))
+    area_base = (perimetro*apotema)/2
+    area_lateral = perimetro*h
+    area_total = 2*area_base + area_lateral
+    volume = area_base*h
 
-        # faces
-        faces = []
-        faces.append(base_inf)
-        faces.append(base_sup)
-        for i in range(n):
-            faces.append([base_inf[i], base_inf[(i+1)%n], base_sup[(i+1)%n], base_sup[i]])
+    explicacao = f"""🔺 Prisma Regular {n} lados
+Perímetro base = n*lado = {n}*{lado} = {perimetro}
+Apótema = {lado}/(2*tan(π/{n})) = {apotema:.4f}
+Área base = (perímetro*apótema)/2 = {area_base:.4f}
+Área lateral = perímetro*altura = {perimetro}*{h} = {area_lateral}
+Área total = 2*área base + área lateral = {area_total}
+Volume = área base*altura = {area_base:.4f}*{h} = {volume:.4f}
+"""
 
-        ax.add_collection3d(Poly3DCollection(faces, facecolors="lightgreen", linewidths=1, edgecolors="k", alpha=.3))
+    return {
+        "perímetro_base": round(perimetro,4),
+        "área_base": round(area_base,4),
+        "apotema_base": round(apotema,4),
+        "área_lateral": round(area_lateral,4),
+        "área_total": round(area_total,4),
+        "volume": round(volume,4)
+    }, explicacao
 
-    # (os outros tipos: cubo, esfera, cilindro, cone, pirâmide já estavam prontos)
-
-    ax.set_box_aspect([1,1,1])
-    st.pyplot(fig)
 
 def cilindro(r, h):
     if r <= 0 or h <= 0:
@@ -469,6 +473,7 @@ Volume = área base*altura = {area_base:.4f}*{h} = {volume:.4f}
         "área_total": round(area_total,4),
         "volume": round(volume,4)
     }, explicacao
+
 
 def cone(r, h):
     if r <= 0 or h <= 0:
@@ -495,6 +500,7 @@ Volume = (πr²h)/3 = (π*{r}²*{h})/3 = {volume:.4f}
         "área_total": round(area_total,4),
         "volume": round(volume,4)
     }, explicacao
+
 
 def esfera(r, h=None):
     if r <= 0:
@@ -528,6 +534,7 @@ Circunferência máxima = 2πr = 2π*{r} = {circ_max:.4f}
         explicacao += f"Calota: área = 2πrh = {area_calota:.4f}, volume = (πh²(3r-h))/3 = {volume_calota:.4f}\n"
 
     return resultado, explicacao
+
 
 def piramide(n, lado, h):
     if n < 3 or n > 6:
@@ -565,8 +572,9 @@ Volume = (área base*h)/3 = ({area_base:.4f}*{h})/3 = {volume:.4f}
         "volume": round(volume,4)
     }, explicacao
 
+
 # =========================================================
-# Função de Plotagem 3D
+# Função de Plotagem 3D (todos os sólidos)
 # =========================================================
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
@@ -576,77 +584,75 @@ def plot_figura_3d(tipo, **params):
 
     if tipo == "cubo":
         lado = params.get("lado",1)
-        r = [0, lado]
-        # vértices
-        vertices = [
-            [(x,y,z) for x in r for y in r for z in r]
+        vertices = [(x,y,z) for x in [0,lado] for y in [0,lado] for z in [0,lado]]
+        faces = [
+            [vertices[j] for j in [0,1,2,3]], [vertices[j] for j in [4,5,6,7]],
+            [vertices[j] for j in [0,1,5,4]], [vertices[j] for j in [2,3,7,6]],
+            [vertices[j] for j in [1,2,6,5]], [vertices[j] for j in [0,3,7,4]],
         ]
-        for s, e in [
-            ([0,0,0],[0,0,1]),([0,0,0],[0,1,0]),([0,0,0],[1,0,0]),
-            ([1,1,1],[1,1,0]),([1,1,1],[1,0,1]),([1,1,1],[0,1,1]),
-            ([0,1,1],[0,1,0]),([0,1,1],[1,1,1]),([0,1,1],[0,0,1]),
-            ([1,0,1],[1,0,0]),([1,0,1],[1,1,1]),([1,0,1],[0,0,1]),
-            ([1,1,0],[0,1,0]),([1,1,0],[1,0,0]),([1,1,0],[1,1,1]),
-        ]:
-            ax.plot([s[0]*lado, e[0]*lado],[s[1]*lado,e[1]*lado],[s[2]*lado,e[2]*lado],color="b")
+        ax.add_collection3d(Poly3DCollection(faces, facecolors="cyan", edgecolors="k", alpha=.25))
+
+    elif tipo == "paralelepipedo":
+        c = params.get("c",1); l = params.get("l",1); h = params.get("h",1)
+        vertices = np.array([
+            [0,0,0],[c,0,0],[c,l,0],[0,l,0],
+            [0,0,h],[c,0,h],[c,l,h],[0,l,h]
+        ])
+        faces = [
+            [vertices[j] for j in [0,1,2,3]],[vertices[j] for j in [4,5,6,7]],
+            [vertices[j] for j in [0,1,5,4]],[vertices[j] for j in [2,3,7,6]],
+            [vertices[j] for j in [1,2,6,5]],[vertices[j] for j in [0,3,7,4]],
+        ]
+        ax.add_collection3d(Poly3DCollection(faces, facecolors="orange", edgecolors="k", alpha=.25))
+
+    elif tipo == "prisma":
+        n = params.get("n",5); lado = params.get("lado",1); h = params.get("h",2)
+        R = lado/(2*math.sin(math.pi/n))
+        base_inf = [(R*math.cos(2*math.pi*i/n), R*math.sin(2*math.pi*i/n), 0) for i in range(n)]
+        base_sup = [(x,y,h) for (x,y,_) in base_inf]
+        faces = [base_inf, base_sup]
+        for i in range(n):
+            faces.append([base_inf[i], base_inf[(i+1)%n], base_sup[(i+1)%n], base_sup[i]])
+        ax.add_collection3d(Poly3DCollection(faces, facecolors="lightgreen", edgecolors="k", alpha=.25))
+
+    elif tipo == "cilindro":
+        r = params.get("r",1); h = params.get("h",2)
+        z = np.linspace(0,h,30); theta = np.linspace(0,2*np.pi,30)
+        theta,z = np.meshgrid(theta,z)
+        x = r*np.cos(theta); y = r*np.sin(theta)
+        ax.plot_surface(x,y,z,alpha=0.3,color="blue")
+
+    elif tipo == "cone":
+        r = params.get("r",1); h = params.get("h",2)
+        theta = np.linspace(0,2*np.pi,30); R = np.linspace(0,r,30)
+        T,R = np.meshgrid(theta,R)
+        X = R*np.cos(T); Y = R*np.sin(T); Z = (h/r)*(r-R)
+        ax.plot_surface(X,Y,Z,alpha=0.3,color="red")
 
     elif tipo == "esfera":
         r = params.get("r",1)
-        u = np.linspace(0, 2*np.pi, 30)
-        v = np.linspace(0, np.pi, 30)
+        u = np.linspace(0,2*np.pi,30); v = np.linspace(0,np.pi,30)
         x = r*np.outer(np.cos(u), np.sin(v))
         y = r*np.outer(np.sin(u), np.sin(v))
         z = r*np.outer(np.ones_like(u), np.cos(v))
-        ax.plot_wireframe(x,y,z,color="r",alpha=0.6)
-
-    elif tipo == "cilindro":
-        r = params.get("r",1)
-        h = params.get("h",2)
-        z = np.linspace(0,h,30)
-        theta = np.linspace(0,2*np.pi,30)
-        theta,z = np.meshgrid(theta,z)
-        x = r*np.cos(theta)
-        y = r*np.sin(theta)
-        ax.plot_surface(x,y,z,alpha=0.3)
-
-    elif tipo == "cone":
-        r = params.get("r",1)
-        h = params.get("h",2)
-        theta = np.linspace(0,2*np.pi,30)
-        R = np.linspace(0,r,30)
-        T,R = np.meshgrid(theta,R)
-        X = R*np.cos(T)
-        Y = R*np.sin(T)
-        Z = (h/r)*(r-R)
-        ax.plot_surface(X,Y,Z,alpha=0.3)
+        ax.plot_wireframe(x,y,z,color="purple",alpha=0.5)
 
     elif tipo == "pirâmide":
-        n = params.get("n", 4)     # nº de lados da base
-        lado = params.get("lado", 1)
-        h = params.get("h", 2)
+        n = params.get("n",4); lado = params.get("lado",1); h = params.get("h",2)
+        R = lado/(2*math.sin(math.pi/n))
+        base = [(R*math.cos(2*math.pi*i/n), R*math.sin(2*math.pi*i/n), 0) for i in range(n)]
+        topo = (0,0,h)
+        faces = [base]
+        for i in range(n):
+            faces.append([base[i], base[(i+1)%n], topo])
+        ax.add_collection3d(Poly3DCollection(faces, facecolors="yellow", edgecolors="k", alpha=.25))
 
-        # Raio da circunferência circunscrita da base
-        R = lado / (2 * math.sin(math.pi / n))
-
-        # Vértices da base
-        base = [(R * math.cos(2*math.pi*i/n), R * math.sin(2*math.pi*i/n), 0) for i in range(n)]
-        topo = (0, 0, h)
-
-        # Desenhar base
-        xs, ys, zs = zip(*base, base[0])  # fecha o polígono
-        ax.plot(xs, ys, zs, color="g")
-
-        # Desenhar arestas até o topo
-        for v in base:
-            ax.plot([v[0], topo[0]], [v[1], topo[1]], [v[2], topo[2]], color="g")
-
-        ax.set_box_aspect([1,1,1])  # escala igual
-
+    ax.set_box_aspect([1,1,1])
     st.pyplot(fig)
 
 
 # =========================================================
-# Interface Streamlit – Parte 2 (com explicações + plots)
+# Interface Streamlit – Parte 2 (3D)
 # =========================================================
 tab8, tab9, tab10, tab11, tab12, tab13, tab14 = st.tabs([
     "Cubo", "Paralelepípedo", "Prisma", "Cilindro", "Cone", "Esfera", "Pirâmide"
@@ -658,10 +664,8 @@ with tab8:
     if st.button("Calcular Cubo"):
         resultado, explicacao = cubo(lado)
         st.write(resultado)
-        if explicacao:
-            st.code(explicacao, language="")
-        if "erro" not in resultado:
-            plot_figura_3d("cubo", lado=lado)
+        if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado: plot_figura_3d("cubo", lado=lado)
 
 with tab9:
     st.header("📦 Paralelepípedo")
@@ -671,10 +675,8 @@ with tab9:
     if st.button("Calcular Paralelepípedo"):
         resultado, explicacao = paralelepipedo(c, l, h)
         st.write(resultado)
-        if explicacao:
-            st.code(explicacao, language="")
-        if "erro" not in resultado:
-            plot_figura_3d("paralelepipedo", c=c, l=l, h=h)
+        if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado: plot_figura_3d("paralelepipedo", c=c, l=l, h=h)
 
 with tab10:
     st.header("🔺 Prisma Regular")
@@ -684,10 +686,8 @@ with tab10:
     if st.button("Calcular Prisma"):
         resultado, explicacao = prisma(n, lado, h)
         st.write(resultado)
-        if explicacao:
-            st.code(explicacao, language="")
-        if "erro" not in resultado:
-            plot_figura_3d("prisma", n=n, lado=lado, h=h)
+        if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado: plot_figura_3d("prisma", n=n, lado=lado, h=h)
 
 with tab11:
     st.header("🟠 Cilindro")
@@ -696,10 +696,8 @@ with tab11:
     if st.button("Calcular Cilindro"):
         resultado, explicacao = cilindro(r, h)
         st.write(resultado)
-        if explicacao:
-            st.code(explicacao, language="")
-        if "erro" not in resultado:
-            plot_figura_3d("cilindro", r=r, h=h)
+        if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado: plot_figura_3d("cilindro", r=r, h=h)
 
 with tab12:
     st.header("🔻 Cone")
@@ -708,10 +706,8 @@ with tab12:
     if st.button("Calcular Cone"):
         resultado, explicacao = cone(r, h)
         st.write(resultado)
-        if explicacao:
-            st.code(explicacao, language="")
-        if "erro" not in resultado:
-            plot_figura_3d("cone", r=r, h=h)
+        if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado: plot_figura_3d("cone", r=r, h=h)
 
 with tab13:
     st.header("⚪ Esfera")
@@ -720,10 +716,8 @@ with tab13:
     if st.button("Calcular Esfera"):
         resultado, explicacao = esfera(r, h if h else None)
         st.write(resultado)
-        if explicacao:
-            st.code(explicacao, language="")
-        if "erro" not in resultado:
-            plot_figura_3d("esfera", r=r)
+        if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado: plot_figura_3d("esfera", r=r)
 
 with tab14:
     st.header("⛏️ Pirâmide Regular")
@@ -733,7 +727,5 @@ with tab14:
     if st.button("Calcular Pirâmide"):
         resultado, explicacao = piramide(n, lado, h)
         st.write(resultado)
-        if explicacao:
-            st.code(explicacao, language="")
-        if "erro" not in resultado:
-            plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
+        if explicacao: st.code(explicacao, language="")
+        if "erro" not in resultado: plot_figura_3d("pirâmide", n=n, lado=lado, h=h)
